@@ -12,10 +12,12 @@ export default function Home() {
         subtitle="Experience the best of African and international cuisines all in one place. Order digitally, skip the chaos, and enjoy your meal!"
       >
         <div className="d-flex justify-content-center gap-3">
-          <button className="btn btn-danger btn-lg" onClick={() => navigate('/restaurant')}>
+          <button className="btn btn-outline-danger btn-lg" onClick={() => navigate('/restaurant')}>
             Browse Restaurants
           </button>
-          <button className="btn btn-outline-danger btn-lg">Book a Table</button>
+          <button className="btn btn-outline-danger btn-lg" onClick={() => navigate('/tablebooking')}>
+            Book a Table
+          </button>
         </div>
       </Herosection>
     </main>
