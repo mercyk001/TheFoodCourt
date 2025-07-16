@@ -1,0 +1,40 @@
+{
+  "restaurants": [
+    {
+      "id": 1,
+      "name": "Ocean Basket",
+      "description": "Specializes in fresh seafood dishes from across the world.",
+      "meals": ["Fish", "Ugali", "Salad", "Lobsters", "Prawns", "Crab", "Sushi", "Fries"]
+    },
+    {
+      "id": 2,
+      "name": "Java House",
+      "description": "The perfect spot for coffee lovers and hearty brunches.",
+      "meals": ["Burger", "Coffee", "Sandwich", "Salad", "Pasta", "Pizza", "Fries"]
+    },
+    {
+      "id": 3,
+      "name": "Big Square",
+      "description": "Famous for burgers, wings, and a fun urban vibe.",
+      "meals": ["Pizza", "Wings", "Fries", "Burgers", "Salad", "Soda", "Milkshakes"]
+    },
+    {
+      "id": 4,
+      "name": "KFC",
+      "description": "Classic fried chicken meals served hot and fast.",
+      "meals": ["Chicken", "Fries", "Coleslaw", "Biscuits", "Soda", "Ice Cream"]
+    },
+    {
+      "id": 5,
+      "name": "Swahili Dishes",
+      "description": "Authentic coastal flavors with traditional Kenyan spices.",
+      "meals": ["Pilau", "Kachumbari", "Samosa", "Chapati", "Mandazi", "Biryani", "Tikka"]
+    },
+    {
+      "id": 6,
+      "name": "Tamarind Dhow",
+      "description": "Luxury seafood dining experience on the water.",
+      "meals": ["Seafood", "Wine", "Sushi", "Prawns", "Crab", "Lobsters", "Salad"]
+    }
+  ]
+}
