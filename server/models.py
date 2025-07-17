@@ -14,6 +14,7 @@ class Customer(db.Model, SerializerMixin):
     phone = db.Column(db.String, unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password_hash = db.Column(db.String, nullable=False)
+    role = db.Column(db.String(20), default='customer')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -67,6 +68,7 @@ class Order(db.Model, SerializerMixin):
     order_status = db.Column(db.String(50), nullable=False, default='pending')
     order_time = db.Column(db.DateTime, default=datetime.utcnow)
     is_cart = db.Column(db.Boolean, default=True)
+    total_price = db.Column(db.Float, nullable=False, default=0.0)
     is_confirmed = db.Column(db.Boolean, default=False)
     estimated_serving_time = db.Column(db.Integer, nullable=True)  # Estimated serving time in minutes
 
@@ -148,6 +150,7 @@ class Owner(db.Model, SerializerMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.String, unique=True, nullable=False)
+    role = db.Column(db.String(20), default='owner')  
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     restaurants = db.relationship('Restaurant', back_populates='owner')

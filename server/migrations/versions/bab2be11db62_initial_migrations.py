@@ -1,8 +1,8 @@
-"""initial schema
+"""initial migrations
 
-Revision ID: e94e395c2308
+Revision ID: bab2be11db62
 Revises: 
-Create Date: 2025-07-17 15:32:23.449352
+Create Date: 2025-07-17 17:22:31.223427
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e94e395c2308'
+revision = 'bab2be11db62'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,6 +24,7 @@ def upgrade():
     sa.Column('phone', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('password_hash', sa.String(), nullable=False),
+    sa.Column('role', sa.String(length=20), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
@@ -43,6 +44,7 @@ def upgrade():
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('password_hash', sa.String(), nullable=False),
     sa.Column('phone_number', sa.String(), nullable=False),
+    sa.Column('role', sa.String(length=20), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
@@ -97,8 +99,9 @@ def upgrade():
     sa.Column('order_status', sa.String(length=50), nullable=False),
     sa.Column('order_time', sa.DateTime(), nullable=True),
     sa.Column('is_cart', sa.Boolean(), nullable=True),
+    sa.Column('total_price', sa.Float(), nullable=False),
     sa.Column('is_confirmed', sa.Boolean(), nullable=True),
-    sa.Column('estimated_serving_time', sa.Interval(), nullable=True),
+    sa.Column('estimated_serving_time', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['reservation_id'], ['reservations.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
