@@ -13,7 +13,7 @@ class Customer(db.Model, SerializerMixin):
     username = db.Column(db.String, unique=True, nullable=False)
     phone = db.Column(db.String, unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
+    password_hash = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -59,20 +59,19 @@ class Table(db.Model, SerializerMixin):
         return f'<Table {self.table_number} with capacity {self.capacity}>'
     
     
-class Order(db.Model):
+class Order(db.Model, SerializerMixin):
     __tablename__ = 'orders'
 
     id = db.Column(db.Integer, primary_key=True)
-    reservation_id = db.Column(db.Integer, db.ForeignKey('reservations.reservation_id'))
-    order_status = db.Column(db.String(50))
+    reservation_id = db.Column(db.Integer, db.ForeignKey('reservations.id'))
+    order_status = db.Column(db.String(50), nullable=False, default='pending')
     order_time = db.Column(db.DateTime, default=datetime.utcnow)
-    table_number = db.Column(db.String(10))
     is_cart = db.Column(db.Boolean, default=True)
     is_confirmed = db.Column(db.Boolean, default=False)
     estimated_serving_time = db.Column(db.Interval)
 
     reservation = db.relationship('Reservation', back_populates='orders')
-    order_meals = db.relationship('OrderMeal', back_populates='order')
+    order_meals = db.relationship('OrderMeal', back_populates='order', cascade='all, delete-orphan')
 
     serialize_rules = ('-reservation.orders', '-order_meals.order')
 
@@ -84,22 +83,22 @@ class Restaurant(db.Model, SerializerMixin):
     __tablename__ = 'restaurants'
     
     id = db.Column(db.Integer, primary_key=True)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'), nullable=False)
     name = db.Column(db.String, nullable=False)
     location = db.Column(db.String, nullable=False)
     cuisine_type = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     owner = db.relationship('Owner', back_populates='restaurants')
-    menu = db.relationship('Menu', back_populates='restaurants')
+    menus = db.relationship('Menu', back_populates='restaurant')
 
-    serialize_rules = ('-owner.restaurants', '-menu.restaurants')
+    serialize_rules = ('-owner.restaurants', '-menus.restaurant')
 
     def __repr__(self):
         return f'<Restaurant {self.name} located at {self.location}>'
     
 class Menu(db.Model, SerializerMixin):
-    __tablename__ = 'menu'
+    __tablename__ = 'menus'
     
     id = db.Column(db.Integer, primary_key=True)
     meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'), nullable=False)
@@ -110,11 +109,11 @@ class Menu(db.Model, SerializerMixin):
     category = db.Column(db.String, nullable=False)  
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    restaurant = db.relationship('Restaurant', back_populates='menu')
-    meal = db.relationship('Meal', back_populates='menu')
+    restaurant = db.relationship('Restaurant', back_populates='menus')
+    meal = db.relationship('Meal', back_populates='menus')
 
     
-    serialize_rules = ('-restaurant.menu', '-meal.menu')
+    serialize_rules = ('-restaurant.menus', '-meal.menus')
 
     def __repr__(self):
         return f'<Menu {self.name} for Restaurant {self.restaurant_id}>'
@@ -129,10 +128,10 @@ class Meal(db.Model, SerializerMixin):
     food_description = db.Column(db.String, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    menu = db.relationship('Menu', back_populates='meal')
+    menus = db.relationship('Menu', back_populates='meal')
     order_meals = db.relationship('OrderMeal', back_populates='meal')
 
-    serialize_rules = ('-menu.meal', '-order_meals.meal')
+    serialize_rules = ('-menus.meal', '-order_meals.meal')
 
     def __repr__(self):
         return f'<Meal {self.name}>'
@@ -161,8 +160,9 @@ class Owner(db.Model, SerializerMixin):
     __tablename__ = 'owners'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, unique=True, nullable=False)
+    username = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String, nullable=False)
     phone_number = db.Column(db.String, unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -171,4 +171,4 @@ class Owner(db.Model, SerializerMixin):
     serialize_rules = ('-restaurants.owner',)
 
     def __repr__(self):
-        return f'<Owner {self.name} with email {self.email}>'
+        return f'<Owner {self.username} with email {self.email}>'
