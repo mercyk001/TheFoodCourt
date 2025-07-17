@@ -3,8 +3,8 @@ from datetime import datetime
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy import MetaData
 from sqlalchemy import Enum
-db = SQLAlchemy()
-
+metadata = MetaData()
+db = SQLAlchemy(metadata=metadata)
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
