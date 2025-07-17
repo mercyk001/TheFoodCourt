@@ -68,7 +68,7 @@ class Order(db.Model, SerializerMixin):
     order_time = db.Column(db.DateTime, default=datetime.utcnow)
     is_cart = db.Column(db.Boolean, default=True)
     is_confirmed = db.Column(db.Boolean, default=False)
-    estimated_serving_time = db.Column(db.Interval)
+    estimated_serving_time = db.Column(db.Integer, nullable=True)  # Estimated serving time in minutes
 
     reservation = db.relationship('Reservation', back_populates='orders')
     order_meals = db.relationship('OrderMeal', back_populates='order', cascade='all, delete-orphan')
