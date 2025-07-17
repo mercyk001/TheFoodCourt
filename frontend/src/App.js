@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Restaurants from './pages/Restaurant';
 import Menu from './pages/Menu';
 import TableBooking from './pages/TableBooking';
+import Cart from './pages/Cart';
 import Layout from './components/Layout';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
          <Route path="/menu/:id" element={<Menu />} />
 
         <Route path="/tablebooking" element={<TableBooking />} />
+        <Route path="/cart" element={<Cart />} /> 
         </Route>
       </Routes>
     </Router>
