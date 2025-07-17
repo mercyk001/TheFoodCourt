@@ -4,16 +4,19 @@ import Home from './pages/Home';
 import Restaurants from './pages/Restaurant';
 import Menu from './pages/Menu';
 import TableBooking from './pages/TableBooking';
+import Layout from './components/Layout';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/restaurant" element={<Restaurants />} />
-        <Route path="/menu/:id" element={<Menu />} />
+        <Route element={<Layout />}>
+         <Route path="/" element={<Home />} />
+         <Route path="/restaurant" element={<Restaurants />} />
+         <Route path="/menu/:id" element={<Menu />} />
 
         <Route path="/tablebooking" element={<TableBooking />} />
+        </Route>
       </Routes>
     </Router>
   );
