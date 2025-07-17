@@ -37,6 +37,36 @@ def handle_cart():
         return update_cart_item(cart)
     elif request.method == 'DELETE':
         return remove_from_cart(cart)
+
+@orders_bp.route('/orders/cart', methods=['GET', 'POST', 'PUT', 'DELETE',])
+@jwt_required()
+def handle_cart():
+    current_user_id = get_jwt_identity()
+    
+    cart = Order.query.filter_by(
+        customer_id=current_user_id,
+        is_cart=True,
+        is_confirmed=False
+    ).first()
+    
+    if not cart:
+        cart = Order(
+            customer_id=current_user_id,
+            is_cart=True,
+            is_confirmed=False,
+            order_time=datetime.utcnow()
+        )
+        db.session.add(cart)
+        db.session.commit()
+        
+    if request.method == 'GET':
+        return get_cart(cart)
+    elif request.method == 'POST':
+        return add_to_cart(cart)
+    elif request.method == 'PUT':
+        return update_cart_item(cart)
+    elif request.method == 'DELETE':
+        return remove_from_cart(cart)
     
 def get_cart(cart):
     try:
