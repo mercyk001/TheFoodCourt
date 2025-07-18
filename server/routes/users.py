@@ -22,3 +22,25 @@ def register_customer():
     db.session.add(new_customer)
     db.session.commit()
     return jsonify({"message": "Customer registered successfully"}), 201
+
+
+# Login sharing endpoint for customer and owner
+@users_bp.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    # Check customer
+    user = Customer.query.filter_by(email=email).first()
+    role = 'customer'
+    if not user:
+        # Check owner
+        user = Owner.query.filter_by(email=email).first()
+        role = 'owner'
+
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    access_token = create_access_token(identity={"id": user.id if role == 'owner' else user.customer_id, "role": role})
+    return jsonify({"access_token": access_token, "role": role}), 200
