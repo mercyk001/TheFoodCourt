@@ -44,11 +44,20 @@ with app.app_context():
 
     # Meals
     meal1 = Meal(name="Grilled Tilapia", food_description="Served with ugali and kachumbari")
-    meal2 = Meal(name="Chicken Pizza", food_description="12-inch with BBQ sauce")
+    meal2 = Meal(name="Chicken Pizza", food_description="12-inch pizza with BBQ sauce and cheese")
     db.session.add_all([meal1, meal2])
     db.session.commit()
 
-    # Menus
+    # Menus with image_url
+    image_urls = [
+        "https://example.com/images/tilapia.jpg",
+        "https://example.com/images/pizza.jpg",
+        "https://example.com/images/burger.jpg",
+        "https://example.com/images/fried_chicken.jpg",
+        "https://example.com/images/pizza_inn.jpg",
+        "https://example.com/images/dominos.jpg"
+    ]
+
     menus = []
     for i, restaurant in enumerate(restaurants):
         meal = meal1 if i % 2 == 0 else meal2
@@ -59,7 +68,8 @@ with app.app_context():
             name=f"{meal.name} - Special",
             description=meal.food_description,
             price=price,
-            category="Main"
+            category="Main",
+            image_url=image_urls[i]  # image URL goeshere
         )
         menus.append(menu)
     db.session.add_all(menus)
@@ -103,7 +113,7 @@ with app.app_context():
     db.session.add_all([order1, order2])
     db.session.commit()
 
-    
+    # Order Meals
     meal1_price = next((m.price for m in menus if m.meal == meal1), 950.0)
     meal2_price = next((m.price for m in menus if m.meal == meal2), 1000.0)
 

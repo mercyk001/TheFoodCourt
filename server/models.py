@@ -129,6 +129,7 @@ class Menu(db.Model, SerializerMixin):
     description = db.Column(db.String, nullable=True)
     price = db.Column(db.Float, nullable=False)
     category = db.Column(db.String, nullable=False)  
+    image_url = db.Column(db.String, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     restaurant = db.relationship('Restaurant', back_populates='menus')

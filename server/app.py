@@ -5,7 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from models import db
-from routes.users import users_bp  # Import blueprint
+from routes.users import users_bp
+from routes.menus import menu_bp  
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///foodcourt.db'
@@ -18,8 +19,9 @@ CORS(app)
 api = Api(app)
 jwt = JWTManager(app)
 
-#  Register the users blueprint
+# Register blueprints
 app.register_blueprint(users_bp)
+app.register_blueprint(menu_bp)  #  Register menu routes
 
 @app.route('/')
 def index():
