@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from server import db
-from server.models import Order, Order_Meal, Meal, Reservation, Customer, Restaurant, Menu
+from server.models import Order, OrderMeal, Meal, Reservation, Customer, Restaurant, Menu
 from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 
