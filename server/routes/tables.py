@@ -16,3 +16,21 @@ def get_table(id):
     if not table:
         return jsonify({"error": "Table not found"}), 404
     return jsonify(table.to_dict()), 200
+
+@tables_bp.route('/', methods=['POST'])
+@jwt_required()
+def create_table():
+    data = request.get_json()
+    
+    try:
+        new_table = Table(
+            table_number=data['table_number'],
+            capacity=data['capacity'],
+            status=data.get('status', 'available')
+        )
+        db.session.add(new_table)
+        db.session.commit()
+        return jsonify(new_table.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
