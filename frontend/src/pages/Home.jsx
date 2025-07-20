@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Herosection from '../components/Herosection';
 import {  Button } from 'react-bootstrap';
+import FeatureCards from '../components/FeatureCards';
+import {  Container } from 'react-bootstrap';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -25,6 +27,10 @@ export default function Home() {
             </Button>
           </div>
         </Herosection>
+
+        <Container className="mt-0">
+          <FeatureCards />
+        </Container>
       </main>
 
     </>
