@@ -4,74 +4,7 @@
   padding: 0;
   box-sizing: border-box;
 }
-:root {
-  --bs-primary: #D67F51 !important;
-  --bs-primary-rgb: 214, 127, 81 !important;
-  --bs-primary-text-emphasis: #D67F51 !important;
-  --bs-primary-bg-subtle: #f8f3f0 !important;
-  --bs-primary-border-subtle: #e6c4a8 !important;
-}
 
-/* Override Bootstrap primary button styles */
-.btn-primary {
-  background-color: #D67F51 !important;
-  border-color: #D67F51 !important;
-}
-
-.btn-primary:hover {
-  background-color: #c26d42 !important;
-  border-color: #c26d42 !important;
-}
-
-.btn-primary:focus, .btn-primary.focus {
-  background-color: #c26d42 !important;
-  border-color: #c26d42 !important;
-  box-shadow: 0 0 0 0.2rem rgba(214, 127, 81, 0.25) !important;
-}
-
-.btn-primary:active, .btn-primary.active {
-  background-color: #b15f38 !important;
-  border-color: #b15f38 !important;
-}
-
-.btn-outline-primary {
-  color: #D67F51 !important;
-  border-color: #D67F51 !important;
-}
-
-.btn-outline-primary:hover {
-  background-color: #D67F51 !important;
-  border-color: #D67F51 !important;
-  color: #fff !important;
-}
-
-.btn-outline-primary:focus, .btn-outline-primary.focus {
-  box-shadow: 0 0 0 0.2rem rgba(214, 127, 81, 0.25) !important;
-}
-
-/* Override Bootstrap badge styles */
-.badge.bg-primary {
-  background-color: #D67F51 !important;
-}
-
-/* Override Bootstrap text color */
-.text-primary {
-  color: #D67F51 !important;
-}
-
-/* Override Bootstrap border color */
-.border-primary {
-  border-color: #D67F51 !important;
-}
-
-/* Override Bootstrap background color */
-.bg-primary {
-  background-color: #D67F51 !important;
-}
-
-.bg-primary.bg-opacity-10 {
-  background-color: rgba(214, 127, 81, 0.1) !important;
-}
 html, body {
   margin: 0;
   padding: 0;
@@ -91,6 +24,7 @@ html, body {
   min-height: 100vh;
 }
 
+/* Remove Bootstrap container padding if needed */
 .container-fluid {
   padding: 0 !important;
 }

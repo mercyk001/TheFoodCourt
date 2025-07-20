@@ -3,7 +3,6 @@ import { StatsCard } from "../components/Dashboard/StatsCard";
 import { OrdersTable } from "../components/Dashboard/OrderTable";
 import { BookingsTable } from "../components/Dashboard/BookingsTable";
 import { OutletsTable } from "../components/Dashboard/OutletsTable";
-import { MenuItemsTable } from "../components/Dashboard/MenuItemsTable";
 import { DollarSign, Package, Store, Calendar } from "lucide-react";
 
 export default function OutletDashboard() {
@@ -69,8 +68,8 @@ export default function OutletDashboard() {
             backgroundColor: activeTab === "outlets" ? "white" : "#FFF8F0",
             border: "1px solid #dee2e6",
             borderRadius: "0",
+            borderTopRightRadius: "0.375rem",
             borderLeft: activeTab === "outlets" ? "1px solid #dee2e6" : "none",
-            borderRight: activeTab === "outlets" ? "1px solid #dee2e6" : "none",
             padding: "12px 16px",
             fontWeight: activeTab === "outlets" ? "600" : "500"
           }}
@@ -79,23 +78,6 @@ export default function OutletDashboard() {
           role="tab"
         >
           Outlets
-        </button>
-        <button 
-          className={`flex-fill btn ${activeTab === "menu-items" ? "btn-light" : ""}`}
-          style={{
-            backgroundColor: activeTab === "menu-items" ? "white" : "#FFF8F0",
-            border: "1px solid #dee2e6",
-            borderRadius: "0",
-            borderTopRightRadius: "0.375rem",
-            borderLeft: activeTab === "menu-items" ? "1px solid #dee2e6" : "none",
-            padding: "12px 16px",
-            fontWeight: activeTab === "menu-items" ? "600" : "500"
-          }}
-          onClick={() => setActiveTab("menu-items")}
-          type="button" 
-          role="tab"
-        >
-          Menu Items
         </button>
       </div>
       <div className="tab-content pt-3" id="dashboardTabsContent">
@@ -112,11 +94,6 @@ export default function OutletDashboard() {
         {activeTab === "outlets" && (
           <div className="p-3" style={{ backgroundColor: "white", border: "0px solid #dee2e6", borderTop: "none", borderRadius: "0 0 0.375rem 0.375rem" }}>
             <OutletsTable />
-          </div>
-        )}
-        {activeTab === "menu-items" && (
-          <div className="p-3" style={{ backgroundColor: "white", border: "0px solid #dee2e6", borderTop: "none", borderRadius: "0 0 0.375rem 0.375rem" }}>
-            <MenuItemsTable />
           </div>
         )}
       </div>

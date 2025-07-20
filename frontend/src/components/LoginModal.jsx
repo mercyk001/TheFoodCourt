@@ -6,12 +6,15 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
     name: '',
+    phone: '',
     restaurantName: '',
-    phone: ''
+    restaurantLocation: '',
+    cuisineType: ''
   });
 
   const handleChange = (e) => {
@@ -23,20 +26,49 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     // Handle login/signup logic here
-    console.log('Form submitted:', { userType, isSignUp, formData });
-    
-    // Simulate successful login/signup
-    const userData = {
-      name: formData.name || 'John Doe',
-      email: formData.email,
-      userType: userType,
-      avatar: null // Default no avatar
-    };
-    
-    // Call the success callback with user data
-    if (onLoginSuccess) {
-      onLoginSuccess(userData);
+    if (isSignUp && userType === 'restaurant') {
+      // Format data for restaurant signup
+      const restaurantSignupData = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        restaurant: {
+          name: formData.restaurantName,
+          location: formData.restaurantLocation,
+          cuisine_type: formData.cuisineType
+        }
+      };
+      console.log('Restaurant signup data:', restaurantSignupData);
+      
+      // Simulate successful signup
+      const userData = {
+        name: formData.name || formData.username,
+        email: formData.email,
+        userType: userType,
+        avatar: null
+      };
+      
+      if (onLoginSuccess) {
+        onLoginSuccess(userData);
+      }
+    } else {
+      // Handle regular login or customer signup
+      console.log('Form submitted:', { userType, isSignUp, formData });
+      
+      // Simulate successful login/signup
+      const userData = {
+        name: formData.name || 'User',
+        email: formData.email,
+        userType: userType,
+        avatar: null
+      };
+      
+      if (onLoginSuccess) {
+        onLoginSuccess(userData);
+      }
     }
     
     onClose();
@@ -44,12 +76,15 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
   const resetForm = () => {
     setFormData({
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
       name: '',
+      phone: '',
       restaurantName: '',
-      phone: ''
+      restaurantLocation: '',
+      cuisineType: ''
     });
   };
 
@@ -62,7 +97,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
   return (
     <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '450px' }}>
+      <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: isSignUp && userType === 'restaurant' ? '600px' : '450px' }}>
         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '16px' }}>
           {/* Header */}
           <div className="modal-header border-0 pb-0">
@@ -115,19 +150,17 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              {/* Name Field (Sign Up only) */}
+              {/* Username Field (Sign Up only) */}
               {isSignUp && (
                 <div className="mb-3">
-                  <label className="form-label fw-medium">
-                    {userType === 'restaurant' ? 'Owner Name' : 'Full Name'}
-                  </label>
+                  <label className="form-label fw-medium">Username</label>
                   <input
                     type="text"
                     className="form-control"
-                    name="name"
-                    value={formData.name}
+                    name="username"
+                    value={formData.username}
                     onChange={handleChange}
-                    placeholder={userType === 'restaurant' ? 'Enter owner name' : 'Enter your full name'}
+                    placeholder="Enter username"
                     style={{
                       borderRadius: '8px',
                       border: '1px solid #e0e0e0',
@@ -139,17 +172,17 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 </div>
               )}
 
-              {/* Restaurant Name (Restaurant Sign Up only) */}
-              {isSignUp && userType === 'restaurant' && (
+              {/* Name Field (Sign Up only) */}
+              {isSignUp && userType === 'customer' && (
                 <div className="mb-3">
-                  <label className="form-label fw-medium">Restaurant Name</label>
+                  <label className="form-label fw-medium">Full Name</label>
                   <input
                     type="text"
                     className="form-control"
-                    name="restaurantName"
-                    value={formData.restaurantName}
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
-                    placeholder="Enter restaurant name"
+                    placeholder="Enter your full name"
                     style={{
                       borderRadius: '8px',
                       border: '1px solid #e0e0e0',
@@ -159,6 +192,82 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                     required
                   />
                 </div>
+              )}
+
+              {/* Restaurant Fields (Restaurant Sign Up only) */}
+              {isSignUp && userType === 'restaurant' && (
+                <>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label fw-medium">Restaurant Name</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="restaurantName"
+                        value={formData.restaurantName}
+                        onChange={handleChange}
+                        placeholder="e.g., Sam's Grill"
+                        style={{
+                          borderRadius: '8px',
+                          border: '1px solid #e0e0e0',
+                          padding: '12px 16px',
+                          fontSize: '14px'
+                        }}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label fw-medium">Cuisine Type</label>
+                      <select
+                        className="form-select"
+                        name="cuisineType"
+                        value={formData.cuisineType}
+                        onChange={handleChange}
+                        style={{
+                          borderRadius: '8px',
+                          border: '1px solid #e0e0e0',
+                          padding: '12px 16px',
+                          fontSize: '14px'
+                        }}
+                        required
+                      >
+                        <option value="">Select cuisine type</option>
+                        <option value="Kenyan">Kenyan</option>
+                        <option value="African">African</option>
+                        <option value="Italian">Italian</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Indian">Indian</option>
+                        <option value="Mexican">Mexican</option>
+                        <option value="Japanese">Japanese</option>
+                        <option value="American">American</option>
+                        <option value="Mediterranean">Mediterranean</option>
+                        <option value="Thai">Thai</option>
+                        <option value="French">French</option>
+                        <option value="Fast Food">Fast Food</option>
+                        <option value="Continental">Continental</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <label className="form-label fw-medium">Restaurant Location</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="restaurantLocation"
+                      value={formData.restaurantLocation}
+                      onChange={handleChange}
+                      placeholder="e.g., NextGen Mall - 2nd Floor"
+                      style={{
+                        borderRadius: '8px',
+                        border: '1px solid #e0e0e0',
+                        padding: '12px 16px',
+                        fontSize: '14px'
+                      }}
+                      required
+                    />
+                  </div>
+                </>
               )}
 
               {/* Email Field */}

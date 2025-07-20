@@ -24,7 +24,7 @@ const initialOrders = [
   {
     id: 3,
     orderId: "#1752950493278",
-    customer: "mwaura cleanshelf",
+    customer: "Jane Doe",
     phone: "+254722123456",
     table: "Table 5",
     items: "2x Ugali with Beef Stew, 1x Chapati",
