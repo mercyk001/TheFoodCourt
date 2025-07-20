@@ -23,12 +23,12 @@ with app.app_context():
 
     # Restaurants
     restaurant_data = [
-        ("Ocean Basket", "CBD", "Seafood", owner1),
-        ("Java House", "Westlands", "Cafe", owner2),
-        ("Big Square", "Karen", "Fast Food", owner1),
-        ("KFC", "Lavington", "Fried Chicken", owner2),
-        ("Pizza Inn", "Yaya", "Pizza", owner1),
-        ("Dominos", "Thika Road", "Pizza", owner2),
+        ("Ocean Basket", "NextGen Mall-1st Floor", "Kenyan", owner1),
+        ("Java House", "NextGen Mall-3rd Floor", "Ethiopian", owner2),
+        ("Big Square", "NextGen Mall-2nd Floor", "Ghananian", owner1),
+        ("KFC", "NextGen Mall-2nd Floor", "Nigerian", owner2),
+        ("Pizza Inn", "NextGen Mall-1st Floor", "Ugandan", owner1),
+        ("Dominos", "NextGen Mall-3rd Floor", "Congolese", owner2),
     ]
     restaurants = [Restaurant(name=n, location=l, cuisine_type=c, owner=o) for n, l, c, o in restaurant_data]
     db.session.add_all(restaurants)

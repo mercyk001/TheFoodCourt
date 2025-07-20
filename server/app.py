@@ -8,6 +8,7 @@ from models import db
 from routes.users import users_bp
 from routes.menus import menu_bp 
 from routes.reservations import reservations_bp 
+from routes.restaurants import restaurants_bp
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///foodcourt.db'
@@ -25,6 +26,8 @@ app.register_blueprint(users_bp)
 app.register_blueprint(menu_bp)
 
 app.register_blueprint(reservations_bp)
+app.register_blueprint(restaurants_bp)
+
 
 
 @app.route('/')
