@@ -24,7 +24,7 @@ function App() {
         id: Date.now(),
         name: mealName,
         qty: 1,
-        price: 300, 
+        price: 300,
         restaurant: 'Unknown',
         image: '/placeholder.jpg'
       }]);
@@ -38,6 +38,10 @@ function App() {
       )
       .filter(cartItem => cartItem.qty > 0);
     setCartItems(updated);
+  };
+
+  const handleDeleteFromCart = (item) => {
+    setCartItems(prev => prev.filter(i => i.id !== item.id));
   };
 
   const handleClearCart = () => setCartItems([]);
@@ -68,6 +72,7 @@ function App() {
                   cartItems={cartItems}
                   onAdd={handleAddToCart}
                   onRemove={handleRemoveFromCart}
+                  onDelete={handleDeleteFromCart}
                   onClear={handleClearCart}
                   onPlaceOrder={handlePlaceOrder}
                 />
