@@ -34,3 +34,19 @@ def create_table():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
+    
+@tables_bp.route('/<int:id>', methods=['PATCH'])
+@jwt_required()
+def update_table(id):
+    table = Table.query.get(id)
+    if not table:
+        return jsonify({"error": "Table not found"}), 404
+
+    data = request.get_json()
+    try:
+        table.status = data.get('status', table.status)
+        db.session.commit()
+        return jsonify(table.to_dict()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
