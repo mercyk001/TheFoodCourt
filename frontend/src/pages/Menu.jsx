@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Herosection from '../components/Herosection';
 
-export default function Menu() {
+export default function Menu({ onAddToCart }) {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,15 +22,11 @@ export default function Menu() {
   }, [id]);
 
   if (loading) {
-    return (
-      <Herosection title="Loading Menu..." subtitle="Please wait as we fetch the meals." />
-    );
+    return <Herosection title="Loading Menu..." subtitle="Please wait as we fetch the meals." />;
   }
 
   if (!restaurant) {
-    return (
-      <Herosection title="Restaurant Not Found" subtitle="We couldn't find the restaurant you're looking for." />
-    );
+    return <Herosection title="Restaurant Not Found" subtitle="We couldn't find the restaurant you're looking for." />;
   }
 
   return (
@@ -45,7 +42,15 @@ export default function Menu() {
                 <div className="card-body">
                   <h5 className="card-title">{meal}</h5>
                   <p className="card-text text-muted">Delicious {meal} served fresh!</p>
-                  <button className="btn btn-outline-danger btn-sm">Add to Cart</button>
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => {
+                      onAddToCart(meal);
+                      navigate('/cart');
+                    }}
+                  >
+                    Add to Cart
+                  </button>
                 </div>
               </div>
             </div>

@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, ChevronDown, LogOut, Edit, Settings } from 'lucide-react';
+import { User, ChevronDown, LogOut, Edit } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { ProfileModal } from './ProfileModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from './Toast';
 
-export default function Navbar() {
+export default function Navbar({ cartCount = 0 }) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -16,18 +15,14 @@ export default function Navbar() {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleLoginSuccess = (userData) => {
@@ -41,7 +36,6 @@ export default function Navbar() {
     logout();
     setShowDropdown(false);
     showToast(`Goodbye, ${userName}! You have been logged out.`, 'info');
-    // Redirect to homepage when logging out
     navigate('/');
   };
 
@@ -54,6 +48,7 @@ export default function Navbar() {
   const getInitials = (name) => {
     return name ? name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2) : 'U';
   };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
       <div className="container-fluid px-3">
@@ -65,17 +60,13 @@ export default function Navbar() {
           />
           Nextgen Food Court
         </Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
+
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span className="navbar-toggler-icon"></span>
         </button>
 
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-          <ul className="navbar-nav">
+          <ul className="navbar-nav align-items-center">
             <li className="nav-item">
               <Link className="nav-link" to="/restaurant">Restaurants</Link>
             </li>
@@ -85,17 +76,23 @@ export default function Navbar() {
             <li className="nav-item">
               <Link className="nav-link" to="/tablebooking">Book Table</Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/cart">Cart</Link>
+            <li className="nav-item position-relative">
+              <Link className="nav-link d-flex align-items-center" to="/cart">
+                🛒 Cart
+                {cartCount > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
             </li>
             {user && (
               <li className="nav-item">
                 <Link className="nav-link" to="/outlet-dashboard">Dashboard</Link>
               </li>
             )}
-            <li className="nav-item ms-auto">
+            <li className="nav-item ms-3">
               {user ? (
-                // User is logged in - show avatar dropdown
                 <div className="dropdown" ref={dropdownRef}>
                   <button 
                     className="btn d-flex align-items-center gap-2 dropdown-toggle"
@@ -118,12 +115,7 @@ export default function Navbar() {
                     ) : (
                       <div 
                         className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-                        style={{ 
-                          width: '40px', 
-                          height: '40px', 
-                          backgroundColor: '#D67F51',
-                          fontSize: '14px'
-                        }}
+                        style={{ width: '40px', height: '40px', backgroundColor: '#D67F51', fontSize: '14px' }}
                       >
                         {getInitials(user.name)}
                       </div>
@@ -131,7 +123,7 @@ export default function Navbar() {
                     <span className="fw-medium text-dark d-none d-md-inline">{user.name}</span>
                     <ChevronDown size={16} className="text-muted" />
                   </button>
-                  
+
                   {showDropdown && (
                     <div 
                       className="dropdown-menu dropdown-menu-end show position-absolute"
@@ -149,7 +141,6 @@ export default function Navbar() {
                         <div className="fw-medium">{user.name}</div>
                         <small className="text-muted">{user.email}</small>
                       </div>
-                      
                       <button 
                         className="dropdown-item d-flex align-items-center gap-2 py-2"
                         onClick={() => {
@@ -161,9 +152,7 @@ export default function Navbar() {
                         <Edit size={16} />
                         Edit Profile
                       </button>
-                      
                       <div className="dropdown-divider"></div>
-                      
                       <button 
                         className="dropdown-item d-flex align-items-center gap-2 py-2 text-danger"
                         onClick={handleLogout}
@@ -176,7 +165,6 @@ export default function Navbar() {
                   )}
                 </div>
               ) : (
-                // User is not logged in - show login button
                 <button 
                   className="btn d-flex align-items-center gap-2 text-white fw-medium"
                   onClick={() => setShowLoginModal(true)}
@@ -197,20 +185,20 @@ export default function Navbar() {
           </ul>
         </div>
       </div>
-      
+
       <LoginModal 
         isOpen={showLoginModal} 
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={handleLoginSuccess}
       />
-      
+
       <ProfileModal 
         isOpen={showProfileModal} 
         onClose={() => setShowProfileModal(false)}
         user={user}
         onUpdateProfile={handleUpdateProfile}
       />
-      
+
       <ToastContainer />
     </nav>
   );
