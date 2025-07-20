@@ -71,3 +71,17 @@ def get_available_tables():
         requested_time = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
     except ValueError:
         return jsonify({"error": "Invalid date/time format. Use YYYY-MM-DD and HH:MM"}), 400
+    
+    reserved_tables = db.session.query(Reservation.table_id).filter(
+        Reservation.reservation_time <= requested_time,
+        Reservation.reservation_time + Reservation.duration >= requested_time
+    ).all()
+    
+    reserved_table_ids = [t[0] for t in reserved_tables]
+    
+    available_tables = Table.query.filter(
+        Table.id.notin_(reserved_table_ids),
+        Table.status == 'available'
+    ).all()
+    
+    return jsonify([table.to_dict() for table in available_tables]), 200
