@@ -15,3 +15,21 @@ def get_meal(id):
     if not meal:
         return jsonify({"error": "Meal not found"}), 404
     return jsonify(meal.to_dict()), 200
+
+@meals_bp.route('/', methods=['POST'])
+@jwt_required()
+def create_meal():
+    data = request.get_json()
+    
+    try:
+        new_meal = Meal(
+            name=data['name'],
+            description=data.get('description'),
+            category=data['category']
+        )
+        db.session.add(new_meal)
+        db.session.commit()
+        return jsonify(new_meal.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
