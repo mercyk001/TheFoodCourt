@@ -33,3 +33,21 @@ def create_meal():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
+    
+@meals_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
+def update_meal(id):
+    meal = Meal.query.get(id)
+    if not meal:
+        return jsonify({"error": "Meal not found"}), 404
+
+    data = request.get_json()
+    try:
+        meal.name = data.get('name', meal.name)
+        meal.description = data.get('description', meal.description)
+        meal.category = data.get('category', meal.category)
+        db.session.commit()
+        return jsonify(meal.to_dict()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
