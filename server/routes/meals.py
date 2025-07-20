@@ -51,3 +51,14 @@ def update_meal(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
+    
+@meals_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_meal(id):
+    meal = Meal.query.get(id)
+    if not meal:
+        return jsonify({"error": "Meal not found"}), 404
+        
+    db.session.delete(meal)
+    db.session.commit()
+    return jsonify({"message": "Meal deleted successfully"}), 200
