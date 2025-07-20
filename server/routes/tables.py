@@ -61,3 +61,13 @@ def delete_table(id):
     db.session.delete(table)
     db.session.commit()
     return jsonify({"message": "Table deleted successfully"}), 200
+
+@tables_bp.route('/available', methods=['GET'])
+def get_available_tables():
+    date = request.args.get('date')
+    time = request.args.get('time')
+    
+    try:
+        requested_time = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
+    except ValueError:
+        return jsonify({"error": "Invalid date/time format. Use YYYY-MM-DD and HH:MM"}), 400
