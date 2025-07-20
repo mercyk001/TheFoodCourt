@@ -7,6 +7,8 @@ import TableBooking from './pages/TableBooking';
 import Cart from './pages/Cart';
 import OutletDashboard from './pages/OutletDashboard';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext'; // Ensure this path is correct
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -22,7 +24,7 @@ function App() {
         id: Date.now(),
         name: mealName,
         qty: 1,
-        price: 300, 
+        price: 300,
         restaurant: 'Unknown',
         image: '/placeholder.jpg'
       }]);
@@ -45,20 +47,6 @@ function App() {
   };
 
   return (
-<<<<<<< HEAD
-    <Router>
-      <Routes>
-        <Route element={<Layout />}>
-         <Route path="/" element={<Home />} />
-         <Route path="/restaurant" element={<Restaurants />} />
-         <Route path="/menu/:id" element={<Menu />} />
-         <Route path="/tablebooking" element={<TableBooking />} />
-         <Route path="/cart" element={<Cart />} />
-         <Route path="/outlet-dashboard" element={<OutletDashboard />} />
-        </Route>
-      </Routes>
-    </Router>
-=======
     <AuthProvider>
       <Router>
         <Routes>
@@ -98,7 +86,6 @@ function App() {
         </Routes>
       </Router>
     </AuthProvider>
->>>>>>> origin/frontend
   );
 }
 
