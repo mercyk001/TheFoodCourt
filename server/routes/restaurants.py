@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Restaurant
 from datetime import datetime
 
-restaurants_bp = Blueprint('restaurants', _name_, url_prefix='/restaurants')
+restaurants_bp = Blueprint('restaurants', __name__, url_prefix='/restaurants')
 
 
 # GET
@@ -25,9 +25,11 @@ def get_restaurant(restaurant_id):
 
 # POST
 @restaurants_bp.route('/', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 def create_restaurant():
-   # current_user = get_jwt_identity()
+    current_user = get_jwt_identity()
+    owner_id = current_user.get('id')  
+
     data = request.get_json()
 
     required_fields = ['name', 'location', 'cuisine_type']
@@ -38,7 +40,7 @@ def create_restaurant():
         name=data['name'],
         location=data['location'],
         cuisine_type=data['cuisine_type'],
-        owner_id=data.get('owner_id'),  
+        owner_id=owner_id,
         created_at=datetime.utcnow()
     )
 
