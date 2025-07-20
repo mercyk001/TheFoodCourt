@@ -24,7 +24,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Handle login/signup logic here
@@ -41,34 +41,203 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
           cuisine_type: formData.cuisineType
         }
       };
-      console.log('Restaurant signup data:', restaurantSignupData);
-      
-      // Simulate successful signup
-      const userData = {
-        name: formData.name || formData.username,
-        email: formData.email,
-        userType: userType,
-        avatar: null
-      };
-      
-      if (onLoginSuccess) {
-        onLoginSuccess(userData);
+      try {
+        const response = await fetch('http://localhost:5555/users/register/owner', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(restaurantSignupData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Registration failed');
+        }
+
+        const data = await response.json();
+        console.log('Restaurant signup successful:', data);
+        
+        // After successful registration, automatically log them in
+        const loginData = {
+          email: formData.email,
+          password: formData.password
+        };
+        
+        const loginResponse = await fetch('http://localhost:5555/users/login/owner', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(loginData)
+        });
+        
+        if (loginResponse.ok) {
+          const loginResult = await loginResponse.json();
+          localStorage.setItem('accessToken', loginResult.access_token);
+          localStorage.setItem('userRole', loginResult.role);
+          localStorage.setItem('userData', JSON.stringify(loginResult.user));
+          
+          const userData = {
+            name: loginResult.user.username,
+            email: loginResult.user.email,
+            userType: loginResult.role,
+            avatar: null,
+            ...loginResult.user
+          };
+          
+          if (onLoginSuccess) {
+            onLoginSuccess(userData);
+          }
+        } else {
+          // Fallback to manual user data if auto-login fails
+          const userData = {
+            name: formData.username,
+            email: formData.email,
+            userType: userType,
+            avatar: null
+          };
+          
+          if (onLoginSuccess) {
+            onLoginSuccess(userData);
+          }
+        }
+      } catch (error) {
+        console.error('Error during restaurant signup:', error);
+        alert('Registration failed: ' + error.message);
+        return; // Don't close modal on error
       }
+      console.log('Restaurant signup data:', restaurantSignupData);
     } else {
       // Handle regular login or customer signup
-      console.log('Form submitted:', { userType, isSignUp, formData });
-      
-      // Simulate successful login/signup
-      const userData = {
-        name: formData.name || 'User',
-        email: formData.email,
-        userType: userType,
-        avatar: null
-      };
-      
-      if (onLoginSuccess) {
-        onLoginSuccess(userData);
+      if (isSignUp && userType === 'customer') {
+        // Handle customer signup
+        const customerSignupData = {
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone
+        };
+        
+        try {
+          const response = await fetch('http://localhost:5555/users/register/customer', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(customerSignupData)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Registration failed');
+          }
+
+          const data = await response.json();
+          console.log('Customer signup successful:', data);
+          
+          // After successful registration, automatically log them in
+          const loginData = {
+            email: formData.email,
+            password: formData.password
+          };
+          
+          const loginResponse = await fetch('http://localhost:5555/users/login/customer', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(loginData)
+          });
+          
+          if (loginResponse.ok) {
+            const loginResult = await loginResponse.json();
+            localStorage.setItem('accessToken', loginResult.access_token);
+            localStorage.setItem('userRole', loginResult.role);
+            localStorage.setItem('userData', JSON.stringify(loginResult.user));
+            
+            const userData = {
+              name: loginResult.user.username,
+              email: loginResult.user.email,
+              userType: loginResult.role,
+              avatar: null,
+              ...loginResult.user
+            };
+            
+            if (onLoginSuccess) {
+              onLoginSuccess(userData);
+            }
+          } else {
+            // Fallback if auto-login fails
+            const userData = {
+              name: formData.name || formData.username,
+              email: formData.email,
+              userType: userType,
+              avatar: null
+            };
+            
+            if (onLoginSuccess) {
+              onLoginSuccess(userData);
+            }
+          }
+        } catch (error) {
+          console.error('Error during customer signup:', error);
+          alert('Registration failed: ' + error.message);
+          return; // Don't close modal on error
+        }
+      } else if (!isSignUp) {
+        // Handle login based on user type
+        const loginData = {
+          email: formData.email,
+          password: formData.password
+        };
+        
+        // Use specific login endpoint based on user type
+        const loginEndpoint = userType === 'restaurant' 
+          ? 'http://localhost:5555/users/login/owner'
+          : 'http://localhost:5555/users/login/customer';
+        
+        try {
+          const response = await fetch(loginEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(loginData)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Login failed');
+          }
+
+          const data = await response.json();
+          console.log('Login successful:', data);
+          
+          // Store the access token and user data
+          localStorage.setItem('accessToken', data.access_token);
+          localStorage.setItem('userRole', data.role);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+          
+          const userData = {
+            name: data.user.username,
+            email: data.user.email,
+            userType: data.role,
+            avatar: null,
+            ...data.user
+          };
+          
+          if (onLoginSuccess) {
+            onLoginSuccess(userData);
+          }
+        } catch (error) {
+          console.error('Error during login:', error);
+          alert('Login failed: ' + error.message);
+          return; // Don't close modal on error
+        }
       }
+      
+      console.log('Form submitted:', { userType, isSignUp, formData });
     }
     
     onClose();

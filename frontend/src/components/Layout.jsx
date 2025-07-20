@@ -3,16 +3,12 @@ import Footer from './Footer';
 import Navbar from './Navbar';
 import { Outlet } from 'react-router-dom';
 
-export default function Layout() {
+export default function Layout({ cartCount }) {
   return (
     <>
-      <Navbar/>
-      
-       <Outlet />
-      
-      
+      <Navbar cartCount={cartCount} /> 
+      <Outlet />
       <Footer />
-      
     </>
   );
 }

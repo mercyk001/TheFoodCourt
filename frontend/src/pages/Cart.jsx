@@ -2,13 +2,13 @@ import React from 'react';
 import { Container, Button, Card, Row, Col, Form } from 'react-bootstrap';
 
 function Cart({
-  cartItems = [],        
+  cartItems = [],
   onAdd = () => {},
   onRemove = () => {},
+  onDelete = () => {},
   onClear = () => {},
   onPlaceOrder = () => {},
 }) {
-  
   const total = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   if (cartItems.length === 0) {
@@ -17,7 +17,7 @@ function Cart({
         <i className="bi bi-cart" style={{ fontSize: '5rem', color: '#888' }}></i>
         <h2>Your cart is empty</h2>
         <p>Looks like you haven't added any delicious items to your cart yet.</p>
-        <Button variant="dark" size="lg">Browse Menu</Button>
+        <Button variant="dark" size="lg" href="/restaurant">Browse Menu</Button>
       </Container>
     );
   }
@@ -40,10 +40,20 @@ function Cart({
                   </Card.Body>
                 </Col>
                 <Col md={4} className="text-end pe-4">
-                  <Button variant="light" size="sm" onClick={() => onRemove(item)}>-</Button>
-                  <span className="mx-2">{item.qty}</span>
-                  <Button variant="light" size="sm" onClick={() => onAdd(item)}>+</Button>
-                  <Card.Text className="mt-2 text-orange">KSh {item.price * item.qty}</Card.Text>
+                  <div className="d-flex justify-content-end align-items-center mb-2">
+                    <Button variant="light" size="sm" onClick={() => onRemove(item)}>-</Button>
+                    <span className="mx-2">{item.qty}</span>
+                    <Button variant="light" size="sm" onClick={() => onAdd(item)}>+</Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => onDelete(item)}
+                    >
+                      🗑️
+                    </Button>
+                  </div>
+                  <Card.Text className="text-orange">KSh {item.price * item.qty}</Card.Text>
                 </Col>
               </Row>
             </Card>
@@ -73,7 +83,7 @@ function Cart({
                 <span>Total</span>
                 <span>KSh {total}</span>
               </div>
-              <p className="text-muted small">Estimated prep time: 15‑25 minutes</p>
+              <p className="text-muted small">(Estimated prep time: 15‑25 minutes)</p>
               <Button variant="dark" className="w-100 mb-2" onClick={onPlaceOrder}>
                 Place Order – KSh {total}
               </Button>

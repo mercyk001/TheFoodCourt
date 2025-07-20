@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Restaurant
 from datetime import datetime
 
-restaurants_bp = Blueprint('restaurants', _name_, url_prefix='/restaurants')
+restaurants_bp = Blueprint('restaurants', __name__, url_prefix='/restaurants')
 
 
 # GET

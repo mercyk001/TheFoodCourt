@@ -87,6 +87,73 @@ def login():
     return jsonify({"access_token": token, "role": role}), 200
 
 
+# Specific login endpoint for restaurant owners
+@users_bp.route('/login/owner', methods=['POST'])
+def login_owner():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    # Only check owner table
+    owner = Owner.query.filter_by(email=email).first()
+
+    if not owner or not check_password_hash(owner.password_hash, password):
+        return jsonify({"error": "Invalid restaurant owner credentials"}), 401
+
+    # Create token with owner identity
+    token = create_access_token(identity={"id": owner.id, "role": "owner"})
+
+    # Return owner details with token
+    return jsonify({
+        "access_token": token,
+        "role": "owner",
+        "user": {
+            "id": owner.id,
+            "username": owner.username,
+            "email": owner.email,
+            "phone": owner.phone_number,
+            "restaurants": [
+                {
+                    "id": r.id,
+                    "name": r.name,
+                    "location": r.location,
+                    "cuisine_type": r.cuisine_type
+                }
+                for r in owner.restaurants
+            ]
+        }
+    }), 200
+
+
+# Specific login endpoint for customers
+@users_bp.route('/login/customer', methods=['POST'])
+def login_customer():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    # Only check customer table
+    customer = Customer.query.filter_by(email=email).first()
+
+    if not customer or not check_password_hash(customer.password_hash, password):
+        return jsonify({"error": "Invalid customer credentials"}), 401
+
+    # Create token with customer identity
+    token = create_access_token(identity={"id": customer.id, "role": "customer"})
+
+    # Return customer details with token
+    return jsonify({
+        "access_token": token,
+        "role": "customer",
+        "user": {
+            "id": customer.id,
+            "username": customer.username,
+            "email": customer.email,
+            "phone": customer.phone
+        }
+    }), 200
+
+
 #   Profile security
 @users_bp.route('/me', methods=['GET'])
 @jwt_required()
