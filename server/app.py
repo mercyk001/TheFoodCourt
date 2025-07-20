@@ -32,12 +32,10 @@ jwt = JWTManager(app)
 # Register blueprints
 app.register_blueprint(users_bp)
 app.register_blueprint(menu_bp)
-
 app.register_blueprint(reservations_bp)
 app.register_blueprint(restaurants_bp)
-
-
-
+app.register_blueprint(meals_bp)
+app.register_blueprint(tables_bp)
 app.register_blueprint(orders_bp, url_prefix='/api')
 
 @app.route('/')
