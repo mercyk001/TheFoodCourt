@@ -8,7 +8,7 @@ import Cart from './pages/Cart';
 import OutletDashboard from './pages/OutletDashboard';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext'; // Ensure this path is correct
+import { AuthProvider } from './contexts/AuthContext'; 
 
 function App() {
   const [cartItems, setCartItems] = useState([]);

@@ -2,13 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, ChevronDown, LogOut, Edit } from 'lucide-react';
 import { LoginModal } from './LoginModal';
+import { useAuth } from '../contexts/AuthContext';
+import ProfileModal from './ProfileModal';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Navbar({ cartCount = 0 }) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const { user, login, logout, updateProfile } = useAuth();
-  const { showToast, ToastContainer } = useToast();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -25,21 +28,21 @@ export default function Navbar({ cartCount = 0 }) {
   const handleLoginSuccess = (userData) => {
     login(userData);
     setShowLoginModal(false);
-    showToast(`Welcome back, ${userData.name}!`, 'success');
+    toast.success(`Welcome back, ${userData.name}!`);
   };
 
   const handleLogout = () => {
     const userName = user?.name || 'User';
     logout();
     setShowDropdown(false);
-    showToast(`Goodbye, ${userName}! You have been logged out.`, 'info');
+    toast.info(`Goodbye, ${userName}! You have been logged out.`);
     navigate('/');
   };
 
   const handleUpdateProfile = (updatedUser) => {
     updateProfile(updatedUser);
     setShowProfileModal(false);
-    showToast('Profile updated successfully!', 'success');
+    toast.success('Profile updated successfully!');
   };
 
   const getInitials = (name) => {
@@ -196,7 +199,7 @@ export default function Navbar({ cartCount = 0 }) {
         onUpdateProfile={handleUpdateProfile}
       />
 
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} />
     </nav>
   );
 }

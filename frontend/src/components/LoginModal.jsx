@@ -42,7 +42,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         }
       };
       try {
-        const response = await fetch('http://localhost:5555/users/register/owner', {
+        const response = await fetch('http://localhost:5000/users/register/owner', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -64,7 +64,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
           password: formData.password
         };
         
-        const loginResponse = await fetch('http://localhost:5555/users/login/owner', {
+        const loginResponse = await fetch('http://localhost:5000/users/login/owner', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -120,7 +120,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         };
         
         try {
-          const response = await fetch('http://localhost:5555/users/register/customer', {
+          const response = await fetch('http://localhost:5000/users/register/customer', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -142,7 +142,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             password: formData.password
           };
           
-          const loginResponse = await fetch('http://localhost:5555/users/login/customer', {
+          const loginResponse = await fetch('http://localhost:5000/users/login/customer', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -194,8 +194,8 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         
         // Use specific login endpoint based on user type
         const loginEndpoint = userType === 'restaurant' 
-          ? 'http://localhost:5555/users/login/owner'
-          : 'http://localhost:5555/users/login/customer';
+          ? 'http://localhost:5000/users/login/owner'
+          : 'http://localhost:5000/users/login/customer';
         
         try {
           const response = await fetch(loginEndpoint, {
