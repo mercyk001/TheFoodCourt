@@ -3,12 +3,11 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Restaurant
 from datetime import datetime
 
-restaurants_bp = Blueprint('restaurants', __name__, url_prefix='/restaurants')
+restaurants_bp = Blueprint('restaurants', _name_, url_prefix='/restaurants')
 
 
 # GET
 @restaurants_bp.route('/', methods=['GET'])
-# @jwt_required()
 def get_restaurants():
     restaurants = Restaurant.query.all()
     return jsonify([restaurant.to_dict() for restaurant in restaurants]), 200
@@ -16,9 +15,8 @@ def get_restaurants():
 
 # GET 
 @restaurants_bp.route('/<int:restaurant_id>', methods=['GET'])
-#@jwt_required()
 def get_restaurant(restaurant_id):
-   # current_user = get_jwt_identity()
+
     restaurant = Restaurant.query.filter_by(id=restaurant_id).first()
     if not restaurant:
         return jsonify({"message": "Restaurant not found"}), 404
@@ -27,9 +25,9 @@ def get_restaurant(restaurant_id):
 
 # POST
 @restaurants_bp.route('/', methods=['POST'])
-@jwt_required()
+#@jwt_required()
 def create_restaurant():
-    current_user = get_jwt_identity()
+   # current_user = get_jwt_identity()
     data = request.get_json()
 
     required_fields = ['name', 'location', 'cuisine_type']
@@ -40,7 +38,7 @@ def create_restaurant():
         name=data['name'],
         location=data['location'],
         cuisine_type=data['cuisine_type'],
-        owner_id=current_user,
+        owner_id=data.get('owner_id'),  
         created_at=datetime.utcnow()
     )
 
@@ -52,10 +50,10 @@ def create_restaurant():
 
 # PATCH
 @restaurants_bp.route('/<int:restaurant_id>', methods=['PATCH'])
-@jwt_required()
+#@jwt_required()
 def update_restaurant(restaurant_id):
-    current_user = get_jwt_identity()
-    restaurant = Restaurant.query.filter_by(id=restaurant_id, owner_id=current_user).first()
+    #current_user = get_jwt_identity()
+    restaurant = Restaurant.query.filter_by(id=restaurant_id).first()
     if not restaurant:
         return jsonify({"message": "Restaurant not found"}), 404
 
@@ -71,10 +69,10 @@ def update_restaurant(restaurant_id):
 
 # Delete a restaurant
 @restaurants_bp.route('/<int:restaurant_id>', methods=['DELETE'])
-@jwt_required()
+#@jwt_required()
 def delete_restaurant(restaurant_id):
-    current_user = get_jwt_identity()
-    restaurant = Restaurant.query.filter_by(id=restaurant_id, owner_id=current_user).first()
+   # current_user = get_jwt_identity()
+    restaurant = Restaurant.query.filter_by(id=restaurant_id).first()
     if not restaurant:
         return jsonify({"message": "Restaurant not found"}), 404
 
