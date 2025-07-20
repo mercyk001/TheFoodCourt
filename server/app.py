@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from models import db
+from routes.orders import orders_bp
 from routes.users import users_bp
 from routes.menus import menu_bp 
 from routes.reservations import reservations_bp 
@@ -14,6 +15,11 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///foodcourt.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_SECRET_KEY"] = "super-secret-key"
+
+
+
+
+
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -29,6 +35,8 @@ app.register_blueprint(reservations_bp)
 app.register_blueprint(restaurants_bp)
 
 
+
+app.register_blueprint(orders_bp, url_prefix='/api')
 
 @app.route('/')
 def index():

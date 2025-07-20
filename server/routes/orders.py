@@ -1,14 +1,14 @@
 from flask import Blueprint, request, jsonify
-from flask_restful import Resource
+# from flask_restful import Resource  
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from server import db
-from server.models import Order, OrderMeal, Meal, Reservation, Customer, Restaurant, Menu
+from models import db
+from models import db, Order,  OrderMeal, Meal, Reservation, Customer, Restaurant, Menu
 from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 
 orders_bp = Blueprint('orders', __name__)
 
-@orders_bp.route('/orders/cart', methods=['GET', 'POST', 'PUT', 'DELETE',])
+@orders_bp.route('/orders/cart', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @jwt_required()
 def handle_cart():
     current_user_id = get_jwt_identity()
@@ -16,7 +16,7 @@ def handle_cart():
     cart = Order.query.filter_by(
         customer_id=current_user_id,
         is_cart=True,
-        is_confirmed=False
+        is_confirmed=False  
     ).first()
     
     if not cart:
@@ -38,36 +38,65 @@ def handle_cart():
     elif request.method == 'DELETE':
         return remove_from_cart(cart)
 
-@orders_bp.route('/orders/cart', methods=['GET', 'POST', 'PUT', 'DELETE',])
-@jwt_required()
-def handle_cart():
-    current_user_id = get_jwt_identity()
+
+def add_to_cart(cart):
+    data = request.get_json()
+    meal_id = data.get('meal_id')
+    quantity = data.get('quantity', 1)
     
-    cart = Order.query.filter_by(
-        customer_id=current_user_id,
-        is_cart=True,
-        is_confirmed=False
-    ).first()
+    if not meal_id:
+        return jsonify({"error": "Meal ID is required"}), 400
     
-    if not cart:
-        cart = Order(
-            customer_id=current_user_id,
-            is_cart=True,
-            is_confirmed=False,
-            order_time=datetime.utcnow()
-        )
-        db.session.add(cart)
-        db.session.commit()
+    try:
+        menu_item = Menu.query.filter_by(meal_id=meal_id).first()
+        if not menu_item:
+            return jsonify({"error": "Meal not found in any restaurant menu"}), 404
         
-    if request.method == 'GET':
+        existing_item = OrderMeal.query.filter_by(
+            order_id=cart.id,
+            meal_id=meal_id
+        ).first()
+        
+        if existing_item:
+            existing_item.quantity += quantity
+        else:
+            new_item = OrderMeal(
+                order_id=cart.id,
+                meal_id=meal_id,
+                quantity=quantity,
+                date_time=datetime.utcnow()
+            )
+            db.session.add(new_item)
+        
+        db.session.commit()
         return get_cart(cart)
-    elif request.method == 'POST':
-        return add_to_cart(cart)
-    elif request.method == 'PUT':
-        return update_cart_item(cart)
-    elif request.method == 'DELETE':
-        return remove_from_cart(cart)
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+def remove_from_cart(cart):
+    data = request.get_json()
+    order_meal_id = data.get('order_meal_id')
     
+    if not order_meal_id:
+        return jsonify({"error": "Order meal ID is required"}), 400
+    
+    try:
+        cart_item = OrderMeal.query.filter_by(
+            id=order_meal_id,
+            order_id=cart.id
+        ).first()
+        
+        if not cart_item:
+            return jsonify({"error": "Item not found in cart"}), 404
+        
+        db.session.delete(cart_item)
+        db.session.commit()
+        return get_cart(cart)
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 def get_cart(cart):
     try:
         cart_items = OrderMeal.query.filter_by(order_id=cart.id).all()
@@ -81,16 +110,16 @@ def get_cart(cart):
             
             items_with_details.append({
                 "order_meal_id": item.id,
-                "meal_id":meal.id,
+                "meal_id": meal.id,
                 "name": meal.name,
                 "description": meal.description,
                 "price": menu_item.price,
                 "quantity": item.quantity,
-                "subtotal": menu_item.price * item.quantity,
+                "subtotal": menu_item.price * item.quantity,  
                 "restaurant": restaurant.name,
                 "cuisine_type": restaurant.cuisine_type
             })
-            total += menu_item.price + item.quantity
+            total += menu_item.price * item.quantity  
             
         return jsonify({
             "cart_id": cart.id,
@@ -110,7 +139,7 @@ def update_cart_item(cart):
         return jsonify({"error": "Order meal ID and quantity are required"}), 400
     
     try:
-        cart_item = Order_Meal.query.filter_by(
+        cart_item = OrderMeal.query.filter_by(
             id=order_meal_id,
             order_id=cart.id
         ).first()

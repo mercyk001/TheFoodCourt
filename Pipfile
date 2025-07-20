@@ -16,7 +16,8 @@ ipdb = "*"
 sqlalchemy-serializer = "*"
 flask_cors="*"
 flask-bcrypt="*"
-flask_jwt_extended="*"
+sqlalchemy = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 
