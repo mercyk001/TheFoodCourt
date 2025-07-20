@@ -50,3 +50,14 @@ def update_table(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
+    
+@tables_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_table(id):
+    table = Table.query.get(id)
+    if not table:
+        return jsonify({"error": "Table not found"}), 404
+        
+    db.session.delete(table)
+    db.session.commit()
+    return jsonify({"message": "Table deleted successfully"}), 200
