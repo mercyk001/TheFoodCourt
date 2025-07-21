@@ -1,40 +1,53 @@
-{
+
+  {
   "restaurants": [
     {
       "id": 1,
-      "name": "Ocean Basket",
-      "description": "Specializes in fresh seafood dishes from across the world.",
-      "meals": ["Fish", "Ugali", "Salad", "Lobsters", "Prawns", "Crab", "Sushi", "Fries"]
+      "name": "Mama Africa Kitchen",
+      "cuisine": "Kenyan",
+      "menu": [
+        { "id": 101, "name": "Nyama Choma", "category": "Main", "price": 800 },
+        { "id": 102, "name": "Ugali & Sukuma", "category": "Main", "price": 250 },
+        { "id": 103, "name": "Mandazi", "category": "Snack", "price": 80 },
+        { "id": 104, "name": "Githeri", "category": "Main", "price": 300 },
+        { "id": 105, "name": "Chapati Beans", "category": "Kids", "price": 200 }
+      ]
     },
     {
       "id": 2,
-      "name": "Java House",
-      "description": "The perfect spot for coffee lovers and hearty brunches.",
-      "meals": ["Burger", "Coffee", "Sandwich", "Salad", "Pasta", "Pizza", "Fries"]
+      "name": "Lagos Bites",
+      "cuisine": "Nigerian",
+      "menu": [
+        { "id": 201, "name": "Jollof Rice", "category": "Main", "price": 600 },
+        { "id": 202, "name": "Puff Puff", "category": "Snack", "price": 150 },
+        { "id": 203, "name": "Egusi Soup & Fufu", "category": "Main", "price": 750 },
+        { "id": 204, "name": "Moi Moi", "category": "Snack", "price": 180 },
+        { "id": 205, "name": "Nkwobi", "category": "Main", "price": 900 }
+      ]
     },
     {
       "id": 3,
-      "name": "Big Square",
-      "description": "Famous for burgers, wings, and a fun urban vibe.",
-      "meals": ["Pizza", "Wings", "Fries", "Burgers", "Salad", "Soda", "Milkshakes"]
+      "name": "Congo Delights",
+      "cuisine": "Congolese",
+      "menu": [
+        { "id": 301, "name": "Pondu", "category": "Main", "price": 550 },
+        { "id": 302, "name": "Chikwangue", "category": "Snack", "price": 200 },
+        { "id": 303, "name": "Makayabu", "category": "Main", "price": 750 },
+        { "id": 304, "name": "Fumbwa", "category": "Main", "price": 600 },
+        { "id": 305, "name": "Brochette", "category": "Snack", "price": 350 }
+      ]
     },
     {
       "id": 4,
-      "name": "KFC",
-      "description": "Classic fried chicken meals served hot and fast.",
-      "meals": ["Chicken", "Fries", "Coleslaw", "Biscuits", "Soda", "Ice Cream"]
-    },
-    {
-      "id": 5,
-      "name": "Swahili Dishes",
-      "description": "Authentic coastal flavors with traditional Kenyan spices.",
-      "meals": ["Pilau", "Kachumbari", "Samosa", "Chapati", "Mandazi", "Biryani", "Tikka"]
-    },
-    {
-      "id": 6,
-      "name": "Tamarind Dhow",
-      "description": "Luxury seafood dining experience on the water.",
-      "meals": ["Seafood", "Wine", "Sushi", "Prawns", "Crab", "Lobsters", "Salad"]
+      "name": "Addis Taste",
+      "cuisine": "Ethiopian",
+      "menu": [
+        { "id": 401, "name": "Injera", "category": "Main", "price": 500 },
+        { "id": 402, "name": "Sambusa", "category": "Snack", "price": 180 },
+        { "id": 403, "name": "Tibs", "category": "Main", "price": 750 },
+        { "id": 404, "name": "Kitfo", "category": "Main", "price": 850 },
+        { "id": 405, "name": "Shiro", "category": "Kids", "price": 300 }
+      ]
     }
   ]
 }

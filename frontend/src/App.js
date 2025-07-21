@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import Restaurants from './pages/Restaurant';
+// import Restaurants from './pages/Restaurant';
 import Menu from './pages/Menu';
 import TableBooking from './pages/TableBooking';
 import Cart from './pages/Cart';
@@ -52,6 +52,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
+<<<<<<< Updated upstream
           <Route
             element={
               <Layout cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} />
@@ -81,6 +82,19 @@ function App() {
                 </ProtectedRoute>
               }
             />
+=======
+          <Route element={<Layout />}>
+           <Route path="/" element={<Home />} />
+           {/* <Route path="/restaurant" element={<Restaurants />} /> */}
+           <Route path="/menu" element={<Menu />} />
+           <Route path="/tablebooking" element={<TableBooking />} />
+           <Route path="/cart" element={<Cart />} />
+           <Route path="/outlet-dashboard" element={
+             <ProtectedRoute>
+               <OutletDashboard />
+             </ProtectedRoute>
+           } />
+>>>>>>> Stashed changes
           </Route>
         </Routes>
       </Router>

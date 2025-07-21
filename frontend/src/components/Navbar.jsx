@@ -66,12 +66,17 @@ export default function Navbar({ cartCount = 0 }) {
         </button>
 
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
+<<<<<<< Updated upstream
           <ul className="navbar-nav align-items-center">
             <li className="nav-item">
+=======
+          <ul className="navbar-nav">
+            {/* <li className="nav-item">
+>>>>>>> Stashed changes
               <Link className="nav-link" to="/restaurant">Restaurants</Link>
-            </li>
+            </li> */}
             <li className="nav-item">
-              <Link className="nav-link" to="/menu/1">Menu</Link>
+              <Link className="nav-link" to="/menu">Menu</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/tablebooking">Book Table</Link>
