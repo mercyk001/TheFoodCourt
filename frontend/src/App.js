@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Menu from './pages/Menu';
 import TableBooking from './pages/TableBooking';
 import Cart from './pages/Cart';
+import Orders from './pages/Orders';
 import OutletDashboard from './pages/OutletDashboard';
 import Layout from './components/Layout';
 import { AuthProvider } from './contexts/AuthContext';
@@ -77,6 +78,14 @@ function App() {
               }
             />
             <Route path="/tablebooking" element={<TableBooking />} />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <Orders />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/outlet-dashboard"
               element={

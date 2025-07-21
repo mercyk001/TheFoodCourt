@@ -49,5 +49,87 @@
         { "id": 405, "name": "Shiro", "category": "Kids", "price": 300 }
       ]
     }
+  ],
+  "orders": [
+    {
+      "id": "ORD-001",
+      "customerId": 1,
+      "restaurantId": 1,
+      "restaurantName": "Mama Africa Kitchen",
+      "items": [
+        { "id": 101, "name": "Nyama Choma", "quantity": 2, "price": 800 },
+        { "id": 102, "name": "Ugali & Sukuma", "quantity": 1, "price": 250 }
+      ],
+      "total": 1850,
+      "status": "delivered",
+      "orderDate": "2024-01-15T10:30:00Z",
+      "deliveryAddress": "123 Main St, Nairobi",
+      "phone": "+254712345678",
+      "estimatedDelivery": null
+    },
+    {
+      "id": "ORD-002",
+      "customerId": 1,
+      "restaurantId": 2,
+      "restaurantName": "Lagos Bites",
+      "items": [
+        { "id": 201, "name": "Jollof Rice", "quantity": 1, "price": 600 },
+        { "id": 202, "name": "Puff Puff", "quantity": 3, "price": 150 }
+      ],
+      "total": 1050,
+      "status": "preparing",
+      "orderDate": "2024-01-20T14:15:00Z",
+      "deliveryAddress": "456 Oak Ave, Nairobi",
+      "phone": "+254712345678",
+      "estimatedDelivery": "25 mins"
+    },
+    {
+      "id": "ORD-003",
+      "customerId": 1,
+      "restaurantId": 3,
+      "restaurantName": "Congo Delights",
+      "items": [
+        { "id": 301, "name": "Pondu", "quantity": 1, "price": 550 },
+        { "id": 303, "name": "Makayabu", "quantity": 1, "price": 750 }
+      ],
+      "total": 1300,
+      "status": "on_way",
+      "orderDate": "2024-01-22T16:45:00Z",
+      "deliveryAddress": "789 Pine St, Nairobi",
+      "phone": "+254712345678",
+      "estimatedDelivery": "10 mins"
+    },
+    {
+      "id": "ORD-004",
+      "customerId": 1,
+      "restaurantId": 4,
+      "restaurantName": "Addis Taste",
+      "items": [
+        { "id": 401, "name": "Injera", "quantity": 2, "price": 500 },
+        { "id": 403, "name": "Tibs", "quantity": 1, "price": 750 }
+      ],
+      "total": 1750,
+      "status": "cancelled",
+      "orderDate": "2024-01-18T12:20:00Z",
+      "deliveryAddress": "321 Elm St, Nairobi",
+      "phone": "+254712345678",
+      "estimatedDelivery": null
+    },
+    {
+      "id": "ORD-005",
+      "customerId": 2,
+      "restaurantId": 1,
+      "restaurantName": "Mama Africa Kitchen",
+      "items": [
+        { "id": 103, "name": "Mandazi", "quantity": 5, "price": 80 },
+        { "id": 104, "name": "Githeri", "quantity": 1, "price": 300 }
+      ],
+      "total": 700,
+      "status": "delivered",
+      "orderDate": "2024-01-19T09:15:00Z",
+      "deliveryAddress": "555 Cedar St, Nairobi",
+      "phone": "+254798765432",
+      "estimatedDelivery": null
+    }
   ]
 }
