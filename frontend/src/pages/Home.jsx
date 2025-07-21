@@ -20,7 +20,7 @@ export default function Home() {
         >
           <div className="d-flex justify-content-center gap-3 flex-wrap">
             <Button variant="outline-danger" size="lg" onClick={() => navigate('/menu')}>
-              Browse Restaurants
+              Browse  Menu
             </Button>
             <Button variant="outline-danger" size="lg" onClick={() => navigate('/tablebooking')}>
               Book a Table
