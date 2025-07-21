@@ -7,16 +7,13 @@ restaurants_bp = Blueprint('restaurants', __name__, url_prefix='/restaurants')
 
 
 # GET /restaurants - Public
-
 @restaurants_bp.route('/', methods=['GET'])
 def get_restaurants():
     restaurants = Restaurant.query.all()
     return jsonify([restaurant.to_dict() for restaurant in restaurants]), 200
 
 
-
 # GET /restaurants/<id> - Public
-
 @restaurants_bp.route('/<int:restaurant_id>', methods=['GET'])
 def get_restaurant(restaurant_id):
     restaurant = Restaurant.query.get(restaurant_id)
@@ -26,7 +23,6 @@ def get_restaurant(restaurant_id):
 
 
 # POST /restaurants - Owner only
-
 @restaurants_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_restaurant():
@@ -53,9 +49,7 @@ def create_restaurant():
     return jsonify(new_restaurant.to_dict()), 201
 
 
-
 # PATCH /restaurants/<id> - Owner only
-
 @restaurants_bp.route('/<int:restaurant_id>', methods=['PATCH'])
 @jwt_required()
 def update_restaurant(restaurant_id):
@@ -92,3 +86,4 @@ def delete_restaurant(restaurant_id):
     db.session.commit()
 
     return jsonify({"message": "Restaurant deleted successfully"}), 200
+
