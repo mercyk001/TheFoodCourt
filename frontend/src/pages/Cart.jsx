@@ -36,7 +36,7 @@ export default function Cart({
   };
 
   const handleBackToMenu = () => {
-    navigate('/restaurant');
+    navigate('/menu');
   };
 
   if (!cartItems || cartItems.length === 0) {

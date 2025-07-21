@@ -19,7 +19,7 @@ export default function Home() {
           subtitle="Experience the best of African and international cuisines all in one place. Order digitally, skip the chaos, and enjoy your meal!"
         >
           <div className="d-flex justify-content-center gap-3 flex-wrap">
-            <Button variant="outline-danger" size="lg" onClick={() => navigate('/restaurant')}>
+            <Button variant="outline-danger" size="lg" onClick={() => navigate('/menu')}>
               Browse Restaurants
             </Button>
             <Button variant="outline-danger" size="lg" onClick={() => navigate('/tablebooking')}>

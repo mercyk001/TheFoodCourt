@@ -1,7 +1,7 @@
+
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-// import Restaurants from './pages/Restaurant';
 import Menu from './pages/Menu';
 import TableBooking from './pages/TableBooking';
 import Cart from './pages/Cart';
@@ -13,21 +13,26 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 function App() {
   const [cartItems, setCartItems] = useState([]);
 
-  const handleAddToCart = (mealName) => {
-    const existing = cartItems.find(item => item.name === mealName);
+  const handleAddToCart = (meal) => {
+    const existing = cartItems.find(item => item.id === meal.id);
     if (existing) {
       setCartItems(cartItems.map(item =>
-        item.name === mealName ? { ...item, quantity: item.quantity + 1 } : item
+        item.id === meal.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
       ));
     } else {
-      setCartItems([...cartItems, {
-        id: Date.now(),
-        name: mealName,
-        quantity: 1,
-        price: 300,
-        restaurant: 'Unknown',
-        image: '/placeholder.jpg'
-      }]);
+      setCartItems([
+        ...cartItems,
+        {
+          id: meal.id,
+          name: meal.name,
+          quantity: 1,
+          price: meal.price,
+          restaurant: meal.restaurant,
+          image: meal.image || '/placeholder.jpg',
+        },
+      ]);
     }
   };
 
@@ -52,15 +57,13 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-<<<<<<< Updated upstream
           <Route
             element={
               <Layout cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} />
             }
           >
             <Route path="/" element={<Home />} />
-            <Route path="/restaurant" element={<Restaurants />} />
-            <Route path="/menu/:id" element={<Menu onAddToCart={handleAddToCart} />} />
+            <Route path="/menu" element={<Menu onAddToCart={handleAddToCart} />} />
             <Route
               path="/cart"
               element={
@@ -82,19 +85,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-=======
-          <Route element={<Layout />}>
-           <Route path="/" element={<Home />} />
-           {/* <Route path="/restaurant" element={<Restaurants />} /> */}
-           <Route path="/menu" element={<Menu />} />
-           <Route path="/tablebooking" element={<TableBooking />} />
-           <Route path="/cart" element={<Cart />} />
-           <Route path="/outlet-dashboard" element={
-             <ProtectedRoute>
-               <OutletDashboard />
-             </ProtectedRoute>
-           } />
->>>>>>> Stashed changes
           </Route>
         </Routes>
       </Router>

@@ -1,22 +1,10 @@
 import React, { useEffect, useState } from 'react';
-<<<<<<< Updated upstream
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Herosection from '../components/Herosection';
-
-export default function Menu({ onAddToCart }) {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [restaurant, setRestaurant] = useState(null);
-  const [loading, setLoading] = useState(true);
-=======
 import { Card, Button, Form, Row, Col, Container } from 'react-bootstrap';
 
-export default function Menu() {
+export default function Menu({ onAddToCart }) {
   const [dishes, setDishes] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [filters, setFilters] = useState({ cuisine: '', category: '', price: '' });
->>>>>>> Stashed changes
 
   useEffect(() => {
     fetch('http://localhost:8000/restaurants')
@@ -37,45 +25,6 @@ export default function Menu() {
       .catch(err => console.error("Failed to fetch restaurants:", err));
   }, []);
 
-<<<<<<< Updated upstream
-  if (loading) {
-    return <Herosection title="Loading Menu..." subtitle="Please wait as we fetch the meals." />;
-  }
-
-  if (!restaurant) {
-    return <Herosection title="Restaurant Not Found" subtitle="We couldn't find the restaurant you're looking for." />;
-  }
-
-  return (
-    <Herosection
-      title={`${restaurant.name} - Menu`}
-      subtitle="Choose your favorite meals and place your order instantly!"
-    >
-      <div className="container mt-5">
-        <div className="row">
-          {restaurant.meals.map((meal, index) => (
-            <div key={index} className="col-md-4 mb-4">
-              <div className="card h-100 shadow-sm text-center">
-                <div className="card-body">
-                  <h5 className="card-title">{meal}</h5>
-                  <p className="card-text text-muted">Delicious {meal} served fresh!</p>
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    onClick={() => {
-                      onAddToCart(meal);
-                      navigate('/cart');
-                    }}
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </Herosection>
-=======
   useEffect(() => {
     let results = [...dishes];
     if (filters.cuisine) results = results.filter(d => d.cuisine === filters.cuisine);
@@ -84,10 +33,6 @@ export default function Menu() {
     if (filters.price === 'high') results = results.sort((a, b) => b.price - a.price);
     setFiltered(results);
   }, [dishes, filters]);
-
-  const handleAddToCart = (dish) => {
-    alert(`${dish.name} from ${dish.restaurant} added to cart!`);
-  };
 
   return (
     <Container className="py-4">
@@ -126,10 +71,15 @@ export default function Menu() {
             <Card className="h-100">
               <Card.Body>
                 <Card.Title>{dish.name}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">{dish.cuisine} • {dish.category}</Card.Subtitle>
+                <Card.Subtitle className="mb-2 text-muted">
+                  {dish.cuisine} • {dish.category}
+                </Card.Subtitle>
                 <Card.Text><strong>From:</strong> {dish.restaurant}</Card.Text>
                 <Card.Text>KES {dish.price}</Card.Text>
-                <Button variant="success" onClick={() => handleAddToCart(dish)}>
+                <Button
+                  variant="success"
+                  onClick={() => onAddToCart(dish)}
+                >
                   Add to Cart
                 </Button>
               </Card.Body>
@@ -138,6 +88,5 @@ export default function Menu() {
         ))}
       </Row>
     </Container>
->>>>>>> Stashed changes
   );
 }

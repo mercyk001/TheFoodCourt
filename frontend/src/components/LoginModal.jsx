@@ -62,8 +62,8 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
   return (
     <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '450px' }}>
-        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '16px' }}>
+      <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '550px' }}>
+        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '16px', minHeight: '400px', padding: '30px' }}>
           {/* Header */}
           <div className="modal-header border-0 pb-0">
             <h5 className="modal-title fw-bold">
