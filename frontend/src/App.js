@@ -17,13 +17,13 @@ function App() {
     const existing = cartItems.find(item => item.name === mealName);
     if (existing) {
       setCartItems(cartItems.map(item =>
-        item.name === mealName ? { ...item, qty: item.qty + 1 } : item
+        item.name === mealName ? { ...item, quantity: item.quantity + 1 } : item
       ));
     } else {
       setCartItems([...cartItems, {
         id: Date.now(),
         name: mealName,
-        qty: 1,
+        quantity: 1,
         price: 300,
         restaurant: 'Unknown',
         image: '/placeholder.jpg'
@@ -31,24 +31,22 @@ function App() {
     }
   };
 
-  const handleRemoveFromCart = (item) => {
-    const updated = cartItems
-      .map(cartItem =>
-        cartItem.id === item.id ? { ...cartItem, qty: cartItem.qty - 1 } : cartItem
-      )
-      .filter(cartItem => cartItem.qty > 0);
-    setCartItems(updated);
+  const handleUpdateQuantity = (id, newQty) => {
+    setCartItems(prev =>
+      newQty > 0
+        ? prev.map(item => item.id === id ? { ...item, quantity: newQty } : item)
+        : prev.filter(item => item.id !== id)
+    );
   };
 
-  const handleDeleteFromCart = (item) => {
-    setCartItems(prev => prev.filter(i => i.id !== item.id));
+  const handleRemoveItem = (id) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
   };
 
   const handleClearCart = () => setCartItems([]);
-  const handlePlaceOrder = () => {
-    alert('Order placed!');
-    setCartItems([]);
-  };
+
+  const getTotal = () =>
+    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
     <AuthProvider>
@@ -56,25 +54,21 @@ function App() {
         <Routes>
           <Route
             element={
-              <Layout cartCount={cartItems.reduce((sum, item) => sum + item.qty, 0)} />
+              <Layout cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} />
             }
           >
             <Route path="/" element={<Home />} />
             <Route path="/restaurant" element={<Restaurants />} />
-            <Route
-              path="/menu/:id"
-              element={<Menu onAddToCart={handleAddToCart} />}
-            />
+            <Route path="/menu/:id" element={<Menu onAddToCart={handleAddToCart} />} />
             <Route
               path="/cart"
               element={
                 <Cart
                   cartItems={cartItems}
-                  onAdd={handleAddToCart}
-                  onRemove={handleRemoveFromCart}
-                  onDelete={handleDeleteFromCart}
-                  onClear={handleClearCart}
-                  onPlaceOrder={handlePlaceOrder}
+                  updateQuantity={handleUpdateQuantity}
+                  removeItem={handleRemoveItem}
+                  clearCart={handleClearCart}
+                  getTotal={getTotal}
                 />
               }
             />
