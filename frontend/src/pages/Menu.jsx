@@ -36,7 +36,7 @@ export default function Menu({ onAddToCart }) {
 
   return (
     <Container className="py-4">
-      <h2 className="text-center mb-4">Browse Menu</h2>
+      <h2 className="text-center mb-4">Find Something Tasty!</h2>
 
       <Row className="mb-4">
         <Col md>
