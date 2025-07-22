@@ -1,8 +1,8 @@
-"""initial miration
+"""Fix Meal model column name
 
-Revision ID: bf9b061cd2b4
+Revision ID: a3dfc869809e
 Revises: 
-Create Date: 2025-07-22 07:23:21.151712
+Create Date: 2025-07-22 11:14:54.758955
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'bf9b061cd2b4'
+revision = 'a3dfc869809e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -34,7 +34,7 @@ def upgrade():
     op.create_table('meals',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('food_description', sa.String(), nullable=True),
+    sa.Column('description', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
@@ -85,7 +85,7 @@ def upgrade():
     sa.Column('meal_id', sa.Integer(), nullable=False),
     sa.Column('restaurant_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('food_description', sa.String(), nullable=True),
     sa.Column('price', sa.Float(), nullable=False),
     sa.Column('category', sa.String(), nullable=False),
     sa.Column('image_url', sa.String(), nullable=True),
@@ -96,7 +96,6 @@ def upgrade():
     )
     op.create_table('orders',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('customer_id', sa.Integer(), nullable=False),
     sa.Column('reservation_id', sa.Integer(), nullable=True),
     sa.Column('order_status', sa.String(length=50), nullable=False),
     sa.Column('order_time', sa.DateTime(), nullable=True),
@@ -104,7 +103,6 @@ def upgrade():
     sa.Column('total_price', sa.Float(), nullable=False),
     sa.Column('is_confirmed', sa.Boolean(), nullable=True),
     sa.Column('estimated_serving_time', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['customer_id'], ['customers.id'], ),
     sa.ForeignKeyConstraint(['reservation_id'], ['reservations.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

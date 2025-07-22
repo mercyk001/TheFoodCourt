@@ -73,7 +73,7 @@ def create_menu():
     if not meal:
         meal = Meal(
             name=data.get('name'),
-            description=data.get('description', '')
+            food_description=data.get('description', '')
         )
         db.session.add(meal)
         db.session.flush()  # get meal.id
@@ -82,7 +82,7 @@ def create_menu():
         restaurant_id=restaurant.id,
         meal_id=meal.id,
         name=data.get('name', meal.name),
-        description=data.get('description', meal.description),
+        description=data.get('description', meal.food_description),
         price=data['price'],
         category=data['category'],
         image_url=data.get('image_url')
