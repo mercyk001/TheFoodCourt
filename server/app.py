@@ -12,6 +12,7 @@ from routes.reservations import reservations_bp
 from routes.restaurants import restaurants_bp
 from routes.meals import meals_bp
 from routes.tables import tables_bp
+from routes.dashboard import dashboard_bp
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///foodcourt.db'
@@ -37,6 +38,7 @@ app.register_blueprint(restaurants_bp)
 app.register_blueprint(meals_bp)
 app.register_blueprint(tables_bp)
 app.register_blueprint(orders_bp, url_prefix='/api')
+app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
 
 @app.route('/')
 def index():

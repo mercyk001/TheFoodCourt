@@ -1,8 +1,8 @@
-"""create tables
+"""initial miration
 
-Revision ID: 41c9135f9dba
+Revision ID: bf9b061cd2b4
 Revises: 
-Create Date: 2025-07-20 23:51:57.920663
+Create Date: 2025-07-22 07:23:21.151712
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '41c9135f9dba'
+revision = 'bf9b061cd2b4'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -96,6 +96,7 @@ def upgrade():
     )
     op.create_table('orders',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('customer_id', sa.Integer(), nullable=False),
     sa.Column('reservation_id', sa.Integer(), nullable=True),
     sa.Column('order_status', sa.String(length=50), nullable=False),
     sa.Column('order_time', sa.DateTime(), nullable=True),
@@ -103,6 +104,7 @@ def upgrade():
     sa.Column('total_price', sa.Float(), nullable=False),
     sa.Column('is_confirmed', sa.Boolean(), nullable=True),
     sa.Column('estimated_serving_time', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['customer_id'], ['customers.id'], ),
     sa.ForeignKeyConstraint(['reservation_id'], ['reservations.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
