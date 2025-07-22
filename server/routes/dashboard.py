@@ -64,19 +64,29 @@ def create_menu():
     identity = get_jwt_identity()
     data = request.get_json()
 
+    # Validate required fields
+    if 'restaurant_id' not in data:
+        return jsonify({'error': 'Missing restaurant_id'}), 400
+    if 'price' not in data or 'category' not in data or 'name' not in data:
+        return jsonify({'error': 'Missing required menu fields'}), 400
+
     restaurant = Restaurant.query.get(data['restaurant_id'])
     if not restaurant or restaurant.owner_id != identity['id']:
         return jsonify({'error': 'Unauthorized restaurant access'}), 403
 
-    # Check if meal exists or create
-    meal = Meal.query.get(data.get('meal_id'))
+    # Check if meal exists by ID, otherwise create new one
+    meal = None
+    meal_id = data.get('meal_id')
+    if meal_id:
+        meal = Meal.query.get(meal_id)
+
     if not meal:
         meal = Meal(
-            name=data.get('name'),
+            name=data['name'],
             food_description=data.get('description', '')
         )
         db.session.add(meal)
-        db.session.flush()  # get meal.id
+        db.session.flush()  # ensure meal.id is available
 
     menu = Menu(
         restaurant_id=restaurant.id,
@@ -90,30 +100,6 @@ def create_menu():
     db.session.add(menu)
     db.session.commit()
     return jsonify(menu.to_dict()), 201
-
-# Update or delete a menu item
-@dashboard_bp.route('/menus/<int:id>', methods=['PUT', 'DELETE'])
-@owner_required
-def manage_menu(id):
-    identity = get_jwt_identity()
-    menu = Menu.query.get(id)
-
-    if not menu or menu.restaurant.owner_id != identity['id']:
-        return jsonify({'error': 'Not found or unauthorized'}), 404
-
-    if request.method == 'PUT':
-        data = request.get_json()
-        menu.name = data.get('name', menu.name)
-        menu.description = data.get('description', menu.description)
-        menu.price = data.get('price', menu.price)
-        menu.category = data.get('category', menu.category)
-        menu.image_url = data.get('image_url', menu.image_url)
-        db.session.commit()
-        return jsonify(menu.to_dict()), 200
-
-    db.session.delete(menu)
-    db.session.commit()
-    return jsonify({'message': 'Menu deleted'}), 200
 
 # View all orders for the owner's restaurants
 @dashboard_bp.route('/orders', methods=['GET'])
