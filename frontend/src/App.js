@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
@@ -31,7 +30,7 @@ function App() {
           quantity: 1,
           price: meal.price,
           restaurant: meal.restaurant,
-          image: meal.image || '/placeholder.jpg',
+          image: meal.img,
         },
       ]);
     }
