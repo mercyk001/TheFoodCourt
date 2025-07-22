@@ -1,50 +1,58 @@
 import React from 'react';
+import { Row, Col, Card } from 'react-bootstrap';
+import { Utensils, ShoppingCart, AlarmClock, Smile } from 'lucide-react';
 
 const features = [
   {
-    icon: '🍽️',
-    title: 'Diverse Cuisines',
-    description: 'Ethiopian, Nigerian, Congolese, Kenyan and more authentic flavors',
+    title: 'Easy Ordering',
+    description: 'Browse menus and place orders with just a few clicks.',
+    icon: ShoppingCart,
   },
   {
-    icon: '⏱️',
-    title: 'Quick Service',
-    description: 'Order ahead or from your table for faster service',
+    title: 'Wide Variety',
+    description: 'Enjoy local and international dishes from top vendors.',
+    icon: Utensils,
   },
   {
-    icon: '⭐',
-    title: 'Quality Food',
-    description: 'Fresh ingredients and authentic recipes from experienced chefs',
+    title: 'Fast Pickup',
+    description: 'Get notified when your food is ready for pickup.',
+    icon: AlarmClock,
   },
   {
-    icon: '👨‍👩‍👧‍👦',
-    title: 'Family Friendly',
-    description: 'Perfect atmosphere for families, friends, and business meetings',
+    title: 'Great Experience',
+    description: 'Skip long lines and enjoy your food stress-free.',
+    icon: Smile,
   },
 ];
 
-const FeatureCards = () => {
+export default function FeatureCards() {
   return (
-    <section className="py-5 bg-light text-center  ">
-      <div className="row mx-0 ">
-        <h2 className="mb-3 fw-bold">Why Choose Nextgen Food Court?</h2>
-        <p className="mb-5 text-muted">
-          Located along Mombasa Road, we bring together the best of African cuisine in one convenient location.
-        </p>
-        <div className="row">
-          {features.map((feature, index) => (
-            <div key={index} className="col-md-6 col-lg-3 mb-4">
-              <div className="p-4 bg-white rounded shadow-sm h-100">
-                <div className="display-4 mb-3">{feature.icon}</div>
-                <h5 className="fw-semibold">{feature.title}</h5>
-                <p className="text-muted">{feature.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+    <section className="py-5 bg-light">
+      <div className="text-center mb-4">
+        <h2 className="fw-bold">Why Choose Us?</h2>
+        <p className="text-muted">Your smart and hassle-free food court experience.</p>
       </div>
+      <Row className="g-4">
+        {features.map((feature, idx) => {
+          const Icon = feature.icon;
+          return (
+            <Col key={idx} md={6} lg={3}>
+              <Card className="text-center h-100 shadow-sm">
+                <Card.Body>
+                  <div
+                    className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style={{ width: 60, height: 60 }}
+                  >
+                    <Icon size={28} />
+                  </div>
+                  <Card.Title>{feature.title}</Card.Title>
+                  <Card.Text className="text-muted">{feature.description}</Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        })}
+      </Row>
     </section>
   );
-};
-
-export default FeatureCards;
+}
