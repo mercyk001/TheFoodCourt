@@ -66,12 +66,12 @@ export default function Navbar({ cartCount = 0 }) {
         </button>
 
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-          <ul className="navbar-nav align-items-center">
-            <li className="nav-item">
+          <ul className="navbar-nav">
+            {/* <li className="nav-item">
               <Link className="nav-link" to="/restaurant">Restaurants</Link>
-            </li>
+            </li> */}
             <li className="nav-item">
-              <Link className="nav-link" to="/menu/1">Menu</Link>
+              <Link className="nav-link" to="/menu">Menu</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/tablebooking">Book Table</Link>
@@ -86,7 +86,12 @@ export default function Navbar({ cartCount = 0 }) {
                 )}
               </Link>
             </li>
-            {user && (
+            {user && user.userType === 'customer' && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/orders">Orders</Link>
+              </li>
+            )}
+            {user && user.userType === 'restaurant' && (
               <li className="nav-item">
                 <Link className="nav-link" to="/outlet-dashboard">Dashboard</Link>
               </li>

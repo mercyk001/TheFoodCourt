@@ -1,104 +1,129 @@
 import React, { useState } from 'react';
 import Herosection from '../components/Herosection';
+import { FaUser } from 'react-icons/fa';
 
 export default function TableBooking() {
-  const [guests, setGuests] = useState('');
+  const [partySize, setPartySize] = useState('');
+  const [specialRequest, setSpecialRequest] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+
+  const tables = [
+    { id: 1, capacity: 2, location: 'Window Side' },
+    { id: 2, capacity: 4, location: 'Center' },
+    { id: 4, capacity: 2, location: 'Near Kitchen' },
+    { id: 5, capacity: 4, location: 'Window Side' },
+    { id: 6, capacity: 6, location: 'Window Side' },
+  ];
+
+  const filteredTables = partySize
+    ? tables.filter((t) => t.capacity >= parseInt(partySize))
+    : tables;
+
+  const handleReserve = (tableId) => {
+    alert(`✅ Table ${tableId} reserved for ${partySize} people on ${selectedDate} at ${selectedTime}`);
+  };
 
   return (
     <main>
       <Herosection
-        title="Reserve a Table"
-        subtitle="Book your table up to 30 minutes in advance for a seamless dining experience."
+        title="Reserve Your Table"
+        subtitle="Book a table up to 30 minutes in advance and enjoy your meal without the wait. All tables are first-come, first-served."
       >
-        <div className="container mt-5">
+        <div className="container mt-4">
           <div className="row">
-          
-
+            {/* Left Booking Form */}
             <div className="col-md-6 mb-4">
-              <div className="card shadow-sm">
-                <div className="card-body">
-                  <h4 className="card-title">
-                    <i className="bi bi-calendar3 me-2"></i>Booking Information
-                  </h4>
-                  <form>
-                    <div className="row gx-3">
-                      <div className="col-6 mb-3">
-                        <label className="form-label">Full Name *</label>
-                        <input type="text" className="form-control" placeholder="Enter your name" required />
-                      </div>
-                      <div className="col-6 mb-3">
-                        <label className="form-label">Phone Number *</label>
-                        <input type="tel" className="form-control" placeholder="+254 700 000 000" required />
-                      </div>
-                    </div>
+              <div className="card p-4 shadow-sm">
+                <h5 className="mb-3">📝 Booking Information</h5>
 
-                    <div className="mb-3">
-                      <label className="form-label">Email Address</label>
-                      <input type="email" className="form-control" placeholder="your@email.com" />
-                    </div>
+                <div className="mb-3">
+                  <label className="form-label">Party Size *</label>
+                  <select
+                    className="form-select"
+                    value={partySize}
+                    onChange={(e) => setPartySize(e.target.value)}
+                    required
+                  >
+                    <option value="">Select party size</option>
+                    {[...Array(10)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1} {i + 1 === 1 ? 'Person' : 'People'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                    <div className="row gx-3">
-                      <div className="col-4 mb-3">
-                        <label className="form-label">Date *</label>
-                        <input type="date" className="form-control" required />
-                      </div>
-                      <div className="col-4 mb-3">
-                        <label className="form-label">Time *</label>
-                        <select className="form-select" required>
-                          <option value="">Select time</option>
-                          <option>10:00 AM</option>
-                          <option>10:30 AM</option>
-                          <option>11:00 AM</option>
-                        </select>
-                      </div>
-                      <div className="col-4 mb-3">
-                        <label className="form-label">Guests *</label>
-                        <select
-                          className="form-select"
-                          required
-                          value={guests}
-                          onChange={e => setGuests(e.target.value)}
-                        >
-                          <option value="">Number</option>
-                          {[...Array(10)].map((_, i) => (
-                            <option key={i+1} value={i+1}>{i+1}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                <div className="mb-3">
+                  <label className="form-label">Date *</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    required
+                  />
+                </div>
 
-                    <div className="mb-3">
-                      <label className="form-label">Special Requests</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Birthday celebration, wheelchair access, etc."
-                      />
-                    </div>
+                <div className="mb-3">
+                  <label className="form-label">Time *</label>
+                  <select
+                    className="form-select"
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
+                    required
+                  >
+                    <option value="">Select time</option>
+                    <option>10:00 AM</option>
+                    <option>12:00 PM</option>
+                    <option>2:00 PM</option>
+                    <option>4:00 PM</option>
+                    <option>6:00 PM</option>
+                  </select>
+                </div>
 
-                    <button type="submit" className="btn btn-dark">Reserve Table</button>
-                  </form>
+                <div className="mb-3">
+                  <label className="form-label">Special Requests</label>
+                  <textarea
+                    className="form-control"
+                    placeholder="Any special requests or dietary requirements..."
+                    value={specialRequest}
+                    onChange={(e) => setSpecialRequest(e.target.value)}
+                  />
                 </div>
               </div>
             </div>
 
-          
+            {/* Right Available Tables */}
             <div className="col-md-6 mb-4">
-              <div className="card shadow-sm h-100">
-                <div className="card-body d-flex flex-column justify-content-center align-items-center">
-                  <h4 className="card-title">
-                    <i className="bi bi-people me-2"></i>Select Your Table
-                  </h4>
-                  {guests ? (
-                    <p className="text-center text-muted mt-4">
-                      <i className="bi bi-table"></i> Available tables for {guests} guests will appear here.
-                    </p>
-                  ) : (
-                    <p className="text-center text-muted mt-4">
-                      Please select number of guests first to see available tables
-                    </p>
-                  )}
-                </div>
+              <div className="card p-4 shadow-sm">
+                <h5 className="mb-3">📍 Available Tables</h5>
+
+                {filteredTables.length ? (
+                  filteredTables.map((table) => (
+                    <div
+                      key={table.id}
+                      className="border rounded p-3 mb-3 d-flex justify-content-between align-items-center"
+                    >
+                      <div>
+                        <strong>Table {table.id}</strong>{' '}
+                        <span className="ms-2 text-muted">
+                          <FaUser className="me-1" />
+                          {table.capacity}
+                        </span>
+                        <div className="text-muted small">{table.location}</div>
+                      </div>
+                      <button
+                        className="btn btn-outline-dark btn-sm"
+                        onClick={() => handleReserve(table.id)}
+                      >
+                        Reserve
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted">No tables found for selected party size.</p>
+                )}
               </div>
             </div>
           </div>
