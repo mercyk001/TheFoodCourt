@@ -141,6 +141,20 @@ class Menu(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<Menu {self.name} for Restaurant {self.restaurant_id}>'
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "price": self.price,
+            "category": self.category,
+            "image_url": self.image_url,
+            "restaurant_id": self.restaurant_id,
+            "restaurant_name": self.restaurant.name if self.restaurant else None,
+            "cuisine_type": self.restaurant.cuisine_type if self.restaurant else None,
+            "created_at": self.created_at.isoformat()
+        }
 
 
 
@@ -167,10 +181,10 @@ class Restaurant(db.Model, SerializerMixin):
     __tablename__ = 'restaurants'
     
     id = db.Column(db.Integer, primary_key=True)
-    owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'), nullable=True)
     name = db.Column(db.String, nullable=False)
-    location = db.Column(db.String, nullable=False)
-    cuisine_type = db.Column(db.String, nullable=False)
+   # location = db.Column(db.String, nullable=False)
+    cuisine = db.Column(db.String, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     owner = db.relationship('Owner', back_populates='restaurants')

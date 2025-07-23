@@ -5,13 +5,29 @@ from sqlalchemy.exc import IntegrityError
 
 menu_bp = Blueprint('menu', __name__, url_prefix='/menus')
 
-# Get all menu items
+
+# ✅ Return a flat list of all menu items with restaurant and cuisine info
 @menu_bp.route('/', methods=['GET'])
 def get_menus():
-    menus = Menu.query.all()
-    return jsonify([menu.to_dict() for menu in menus]), 200
+    restaurants = Restaurant.query.all()
+    flat_dishes = []
 
-# Get a specific menu item
+    for r in restaurants:
+        for m in r.menus:
+            flat_dishes.append({
+                "id": m.id,
+                "name": m.name,
+                "img": m.image_url,  # Match React naming
+                "price": m.price,
+                "category": m.category,
+                "restaurant": r.name,
+                "cuisine": r.cuisine
+            })
+
+    return jsonify(flat_dishes), 200
+
+
+# ✅ Get a specific menu item
 @menu_bp.route('/<int:id>', methods=['GET'])
 def get_menu(id):
     menu = Menu.query.get(id)
@@ -19,7 +35,8 @@ def get_menu(id):
         return jsonify({"error": "Menu not found"}), 404
     return jsonify(menu.to_dict()), 200
 
-# Create a new menu item (protected - only for owners)
+
+# ✅ Create a new menu item (owner only)
 @menu_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_menu():
@@ -28,8 +45,13 @@ def create_menu():
         return jsonify({"error": "Only owners can create menu items"}), 403
 
     data = request.get_json()
-    restaurant = Restaurant.query.get(data["restaurant_id"])
 
+    required_fields = ['meal_id', 'restaurant_id', 'name', 'price', 'category']
+    missing = [field for field in required_fields if field not in data]
+    if missing:
+        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
+
+    restaurant = Restaurant.query.get(data['restaurant_id'])
     if not restaurant or restaurant.owner_id != identity["id"]:
         return jsonify({"error": "You are not authorized to add menu to this restaurant"}), 403
 
@@ -50,9 +72,11 @@ def create_menu():
         db.session.rollback()
         return jsonify({"error": "Invalid meal_id or restaurant_id"}), 400
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-# Update menu (PATCH) - only owner of restaurant can update
+
+# ✅ Update a menu item (owner only)
 @menu_bp.route('/<int:id>', methods=['PATCH'])
 @jwt_required()
 def update_menu(id):
@@ -77,7 +101,8 @@ def update_menu(id):
     db.session.commit()
     return jsonify(menu.to_dict()), 200
 
-# Delete a menu item - only owner can delete
+
+# ✅ Delete a menu item (owner only)
 @menu_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_menu(id):
@@ -95,3 +120,18 @@ def delete_menu(id):
     db.session.delete(menu)
     db.session.commit()
     return jsonify({"message": "Menu item deleted"}), 200
+
+
+# 🔁 OPTIONAL: Get all menus for a specific restaurant
+@menu_bp.route('/restaurant/<int:restaurant_id>', methods=['GET'])
+def get_menus_by_restaurant(restaurant_id):
+    restaurant = Restaurant.query.get(restaurant_id)
+    if not restaurant:
+        return jsonify({"error": "Restaurant not found"}), 404
+
+    return jsonify({
+        "id": restaurant.id,
+        "name": restaurant.name,
+        "cuisine": restaurant.cuisine,
+        "menu": [menu.to_dict() for menu in restaurant.menus]
+    }), 200

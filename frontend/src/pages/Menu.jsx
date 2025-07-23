@@ -1,38 +1,70 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Form, Row, Col, Container } from 'react-bootstrap';
+import { Card, Button, Form, Row, Col, Container, Spinner, Alert } from 'react-bootstrap';
 
 export default function Menu({ onAddToCart }) {
   const [dishes, setDishes] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [filters, setFilters] = useState({ cuisine: '', category: '', price: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:8000/restaurants')
-      .then(res => res.json())
-      .then(data => {
-        const allDishes = data.flatMap(restaurant =>
-          Array.isArray(restaurant.menu)
-            ? restaurant.menu.map(item => ({
-                ...item,
-                restaurant: restaurant.name,
-                cuisine: restaurant.cuisine
-              }))
-            : []
-        );
-        setDishes(allDishes);
-        setFiltered(allDishes);
+    fetch('http://localhost:5000/menus')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch menu items');
+        return res.json();
       })
-      .catch(err => console.error("Failed to fetch restaurants:", err));
+      .then(data => {
+        // Data is already flat from the Flask API
+        console.log('Fetched dishes:', data);
+        setDishes(data);
+        setFiltered(data);
+      })
+      .catch(err => {
+        console.error("Failed to fetch menu items:", err);
+        setError("Failed to load menu items. Please try again later.");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
     let results = [...dishes];
-    if (filters.cuisine) results = results.filter(d => d.cuisine === filters.cuisine);
-    if (filters.category) results = results.filter(d => d.category === filters.category);
-    if (filters.price === 'low') results = results.sort((a, b) => a.price - b.price);
-    if (filters.price === 'high') results = results.sort((a, b) => b.price - a.price);
+    
+    if (filters.cuisine) {
+      results = results.filter(d => d.cuisine === filters.cuisine);
+    }
+    
+    if (filters.category) {
+      results = results.filter(d => d.category === filters.category);
+    }
+    
+    if (filters.price === 'low') {
+      results = results.sort((a, b) => a.price - b.price);
+    } else if (filters.price === 'high') {
+      results = results.sort((a, b) => b.price - a.price);
+    }
+    
     setFiltered(results);
   }, [dishes, filters]);
+
+  if (loading) {
+    return (
+      <Container className="py-4 text-center">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+        <p className="mt-2">Loading delicious meals...</p>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="py-4">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container className="py-4">
@@ -40,7 +72,10 @@ export default function Menu({ onAddToCart }) {
 
       <Row className="mb-4">
         <Col md>
-          <Form.Select onChange={e => setFilters(f => ({ ...f, cuisine: e.target.value }))}>
+          <Form.Select 
+            value={filters.cuisine}
+            onChange={e => setFilters(f => ({ ...f, cuisine: e.target.value }))}
+          >
             <option value="">Filter by Cuisine</option>
             <option value="Kenyan">Kenyan</option>
             <option value="Ethiopian">Ethiopian</option>
@@ -49,7 +84,10 @@ export default function Menu({ onAddToCart }) {
           </Form.Select>
         </Col>
         <Col md>
-          <Form.Select onChange={e => setFilters(f => ({ ...f, category: e.target.value }))}>
+          <Form.Select 
+            value={filters.category}
+            onChange={e => setFilters(f => ({ ...f, category: e.target.value }))}
+          >
             <option value="">Filter by Category</option>
             <option value="Main">Main</option>
             <option value="Snack">Snack</option>
@@ -57,7 +95,10 @@ export default function Menu({ onAddToCart }) {
           </Form.Select>
         </Col>
         <Col md>
-          <Form.Select onChange={e => setFilters(f => ({ ...f, price: e.target.value }))}>
+          <Form.Select 
+            value={filters.price}
+            onChange={e => setFilters(f => ({ ...f, price: e.target.value }))}
+          >
             <option value="">Sort by Price</option>
             <option value="low">Lowest First</option>
             <option value="high">Highest First</option>
@@ -65,32 +106,45 @@ export default function Menu({ onAddToCart }) {
         </Col>
       </Row>
 
-      <Row>
-        {filtered.map(dish => (
-          <Col key={dish.id} sm={6} md={4} lg={3} className="mb-4">
-            <Card className="h-100">
-              <Card.Img
-                variant="top"
-                src={dish.img}
-                style={{ height: '200px', objectFit: 'cover' }} />
-              <Card.Body>
-                <Card.Title>{dish.name}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">
-                  {dish.cuisine} • {dish.category}
-                </Card.Subtitle>
-                <Card.Text><strong>From:</strong> {dish.restaurant}</Card.Text>
-                <Card.Text>KES {dish.price}</Card.Text>
-                <Button
-                  variant="warning"
-                  onClick={() => onAddToCart(dish)}
-                >
-                  Add to Cart
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      {filtered.length === 0 ? (
+        <Alert variant="info" className="text-center">
+          No dishes found matching your criteria. Try adjusting your filters.
+        </Alert>
+      ) : (
+        <Row>
+          {filtered.map(dish => (
+            <Col key={dish.id} sm={6} md={4} lg={3} className="mb-4">
+              <Card className="h-100">
+                <Card.Img
+                  variant="top"
+                  src={dish.img || '/placeholder-food.jpg'}
+                  onError={(e) => {
+                    e.target.src = '/placeholder-food.jpg';
+                  }}
+                  style={{ height: '200px', objectFit: 'cover' }} 
+                />
+                <Card.Body className="d-flex flex-column">
+                  <Card.Title>{dish.name}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {dish.cuisine} • {dish.category}
+                  </Card.Subtitle>
+                  <Card.Text><strong>From:</strong> {dish.restaurant}</Card.Text>
+                  <Card.Text className="mb-3">
+                    <strong>KES {dish.price.toLocaleString()}</strong>
+                  </Card.Text>
+                  <Button
+                    variant="warning"
+                    className="mt-auto"
+                    onClick={() => onAddToCart(dish)}
+                  >
+                    Add to Cart
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
     </Container>
   );
 }

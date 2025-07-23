@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Herosection from '../components/Herosection';
 import { FaUser } from 'react-icons/fa';
+import axios from 'axios';
 
 export default function TableBooking() {
   const [partySize, setPartySize] = useState('');
   const [specialRequest, setSpecialRequest] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [tables, setTables] = useState([]);
+  
 
-  const tables = [
-    { id: 1, capacity: 2, location: 'Window Side' },
-    { id: 2, capacity: 4, location: 'Center' },
-    { id: 4, capacity: 2, location: 'Near Kitchen' },
-    { id: 5, capacity: 4, location: 'Window Side' },
-    { id: 6, capacity: 6, location: 'Window Side' },
-  ];
+  
 
   const filteredTables = partySize
     ? tables.filter((t) => t.capacity >= parseInt(partySize))
@@ -23,6 +20,14 @@ export default function TableBooking() {
   const handleReserve = (tableId) => {
     alert(`✅ Table ${tableId} reserved for ${partySize} people on ${selectedDate} at ${selectedTime}`);
   };
+
+
+   useEffect(() => {
+    axios.get('http://localhost:5000/tables')
+      .then(response => setTables(response.data))
+      .catch(error => console.error('Error fetching tables:', error));
+  }, []);
+
 
   return (
     <main>
