@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import set_access_cookies
 
 from models import db, Customer, Owner, Restaurant
 
@@ -70,7 +71,6 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-    # Try customer first
     user = Customer.query.filter_by(email=email).first()
     role = 'customer'
 
@@ -82,9 +82,12 @@ def login():
         return jsonify({"error": "Invalid email or password"}), 401
 
     user_id = user.id
-    token = create_access_token(identity={"id": user_id, "role": role})
+    access_token = create_access_token(identity={"id": user_id, "role": role})
 
-    return jsonify({"access_token": token, "role": role}), 200
+    response = make_response(jsonify({"message": "Login successful", "role": role}))
+    set_access_cookies(response, access_token)  # Sets token in HTTP-only cookie
+
+    return response, 200
 
 
 #   Profile security
