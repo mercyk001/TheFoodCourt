@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, ChevronDown, LogOut, Edit } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, UtensilsCrossed, CalendarCheck, ShoppingCart, BarChart3, User, ChevronDown, LogOut, Edit } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { ProfileModal } from './ProfileModal';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +13,7 @@ export default function Navbar({ cartCount = 0 }) {
   const { user, login, logout, updateProfile } = useAuth();
   const { showToast, ToastContainer } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -49,14 +50,24 @@ export default function Navbar({ cartCount = 0 }) {
     return name ? name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2) : 'U';
   };
 
+  const navLinks = [
+    { to: '/', label: 'Home', icon: <Home size={18} /> },
+    { to: '/menu', label: 'Menu', icon: <UtensilsCrossed size={18} /> },
+    { to: '/tablebooking', label: 'Book Table', icon: <CalendarCheck size={18} /> },
+  ];
+
+  if (user?.userType === 'restaurant') {
+    navLinks.push({ to: '/outlet-dashboard', label: 'Dashboard', icon: <BarChart3 size={18} />, highlight: true });
+  }
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <nav className="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
       <div className="container-fluid px-3">
-        <Link className="navbar-brand fw-bold text-danger d-flex align-items-center gap-2" to="/">
+        <Link className="navbar-brand fw-bold d-flex align-items-center gap-2 text-danger" to="/">
           <img 
             src="/logo.png" 
             alt="Nextgen Food Court Logo" 
-            style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+            style={{ width: '40px', height: '40px', objectFit: 'contain' }}
           />
           Nextgen Food Court
         </Link>
@@ -66,19 +77,23 @@ export default function Navbar({ cartCount = 0 }) {
         </button>
 
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-          <ul className="navbar-nav">
-            {/* <li className="nav-item">
-              <Link className="nav-link" to="/restaurant">Restaurants</Link>
-            </li> */}
-            <li className="nav-item">
-              <Link className="nav-link" to="/menu">Menu</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/tablebooking">Book Table</Link>
-            </li>
+          <ul className="navbar-nav align-items-center gap-3">
+            {navLinks.map(({ to, label, icon, highlight }) => (
+              <li className="nav-item" key={to}>
+                <Link
+                  className={`nav-link d-flex align-items-center gap-1 px-3 rounded ${
+                    location.pathname === to ? (highlight ? 'bg-light text-danger fw-semibold' : 'text-primary') : 'text-dark'
+                  }`}
+                  to={to}
+                >
+                  {icon} {label}
+                </Link>
+              </li>
+            ))}
+
             <li className="nav-item position-relative">
-              <Link className="nav-link d-flex align-items-center" to="/cart">
-                🛒 Cart
+              <Link className="nav-link d-flex align-items-center gap-1 position-relative" to="/cart">
+                <ShoppingCart size={18} /> 
                 {cartCount > 0 && (
                   <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     {cartCount}
@@ -86,82 +101,54 @@ export default function Navbar({ cartCount = 0 }) {
                 )}
               </Link>
             </li>
-            {user && user.userType === 'customer' && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/orders">Orders</Link>
-              </li>
-            )}
-            {user && user.userType === 'restaurant' && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/outlet-dashboard">Dashboard</Link>
-              </li>
-            )}
-            <li className="nav-item ms-3">
+
+            <li className="nav-item">
               {user ? (
                 <div className="dropdown" ref={dropdownRef}>
-                  <button 
+                  <button
                     className="btn d-flex align-items-center gap-2 dropdown-toggle"
-                    style={{
-                      backgroundColor: 'transparent',
-                      border: 'none',
-                      borderRadius: '50px',
-                      padding: '4px'
-                    }}
                     onClick={() => setShowDropdown(!showDropdown)}
-                    type="button"
+                    style={{ background: 'transparent', border: 'none' }}
                   >
                     {user.avatar ? (
-                      <img 
-                        src={user.avatar} 
-                        alt="Profile" 
+                      <img
+                        src={user.avatar}
+                        alt="Profile"
                         className="rounded-circle"
-                        style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                        style={{ width: '36px', height: '36px', objectFit: 'cover' }}
                       />
                     ) : (
-                      <div 
+                      <div
                         className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-                        style={{ width: '40px', height: '40px', backgroundColor: '#D67F51', fontSize: '14px' }}
+                        style={{ width: '36px', height: '36px', backgroundColor: '#D67F51', fontSize: '14px' }}
                       >
                         {getInitials(user.name)}
                       </div>
                     )}
-                    <span className="fw-medium text-dark d-none d-md-inline">{user.name}</span>
+                    <span className="d-none d-md-inline fw-medium text-dark">{user.name}</span>
                     <ChevronDown size={16} className="text-muted" />
                   </button>
 
                   {showDropdown && (
-                    <div 
-                      className="dropdown-menu dropdown-menu-end show position-absolute"
-                      style={{ 
-                        top: '100%', 
-                        right: '0',
-                        minWidth: '200px',
-                        borderRadius: '12px',
-                        border: '1px solid #e0e0e0',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                        zIndex: 1000
-                      }}
-                    >
+                    <div className="dropdown-menu dropdown-menu-end show mt-2 shadow-sm rounded">
                       <div className="px-3 py-2 border-bottom">
-                        <div className="fw-medium">{user.name}</div>
+                        <div className="fw-semibold">{user.name}</div>
                         <small className="text-muted">{user.email}</small>
                       </div>
-                      <button 
+                      <button
                         className="dropdown-item d-flex align-items-center gap-2 py-2"
                         onClick={() => {
                           setShowProfileModal(true);
                           setShowDropdown(false);
                         }}
-                        style={{ border: 'none', background: 'none' }}
                       >
                         <Edit size={16} />
                         Edit Profile
                       </button>
                       <div className="dropdown-divider"></div>
-                      <button 
+                      <button
                         className="dropdown-item d-flex align-items-center gap-2 py-2 text-danger"
                         onClick={handleLogout}
-                        style={{ border: 'none', background: 'none' }}
                       >
                         <LogOut size={16} />
                         Logout
@@ -170,17 +157,9 @@ export default function Navbar({ cartCount = 0 }) {
                   )}
                 </div>
               ) : (
-                <button 
-                  className="btn d-flex align-items-center gap-2 text-white fw-medium"
+                <button
+                  className="btn btn-warning text-white fw-medium d-flex align-items-center gap-1 px-3"
                   onClick={() => setShowLoginModal(true)}
-                  style={{
-                    backgroundColor: '#D67F51',
-                    border: 'none',
-                    borderRadius: '6px',
-                    transition: 'background-color 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#D99467'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#D67F51'}
                 >
                   <User size={18} />
                   Login
@@ -191,19 +170,17 @@ export default function Navbar({ cartCount = 0 }) {
         </div>
       </div>
 
-      <LoginModal 
-        isOpen={showLoginModal} 
+      <LoginModal
+        isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={handleLoginSuccess}
       />
-
-      <ProfileModal 
-        isOpen={showProfileModal} 
+      <ProfileModal
+        isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
         user={user}
         onUpdateProfile={handleUpdateProfile}
       />
-
       <ToastContainer />
     </nav>
   );
