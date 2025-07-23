@@ -36,7 +36,7 @@ export default function Menu({ onAddToCart }) {
 
   return (
     <Container className="py-4">
-      <h2 className="text-center mb-4">Browse Menu</h2>
+      <h2 className="text-center mb-4">Find Something Tasty!</h2>
 
       <Row className="mb-4">
         <Col md>
@@ -69,6 +69,10 @@ export default function Menu({ onAddToCart }) {
         {filtered.map(dish => (
           <Col key={dish.id} sm={6} md={4} lg={3} className="mb-4">
             <Card className="h-100">
+              <Card.Img
+                variant="top"
+                src={dish.img}
+                style={{ height: '200px', objectFit: 'cover' }} />
               <Card.Body>
                 <Card.Title>{dish.name}</Card.Title>
                 <Card.Subtitle className="mb-2 text-muted">
@@ -77,7 +81,7 @@ export default function Menu({ onAddToCart }) {
                 <Card.Text><strong>From:</strong> {dish.restaurant}</Card.Text>
                 <Card.Text>KES {dish.price}</Card.Text>
                 <Button
-                  variant="success"
+                  variant="warning"
                   onClick={() => onAddToCart(dish)}
                 >
                   Add to Cart

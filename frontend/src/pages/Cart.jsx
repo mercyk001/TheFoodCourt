@@ -13,6 +13,7 @@ export default function Cart({
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [tableNumber, setTableNumber] = useState('');
   const navigate = useNavigate();
+  
 
   const handleQuantityChange = (id, newQty) => {
     if (newQty === 0) {
@@ -38,6 +39,8 @@ export default function Cart({
   const handleBackToMenu = () => {
     navigate('/menu');
   };
+
+
 
   if (!cartItems || cartItems.length === 0) {
     return (
@@ -76,9 +79,10 @@ export default function Cart({
                 <Row className="align-items-center">
                   <Col md={2}>
                     <Image
-                      src={item.image || '/placeholder.png'}
+                      src={item.image}
                       fluid
                       rounded
+                      style={{ height: '80px', width: '80px', objectFit: 'cover' }}
                     />
                   </Col>
                   <Col md={6}>

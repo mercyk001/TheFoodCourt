@@ -28,7 +28,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
     
     // Simulate successful login/signup
     const userData = {
-      name: formData.name || 'John Doe',
+      name: formData.name || 'Guest',
       email: formData.email,
       userType: userType,
       avatar: null // Default no avatar
@@ -61,12 +61,36 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '550px' }}>
-        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '16px', minHeight: '400px', padding: '30px' }}>
+    <div 
+      className="modal show d-block" 
+      tabIndex="-1" 
+      style={{ 
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        padding: '15px'
+      }}
+    >
+      <div 
+        className="modal-dialog modal-dialog-centered" 
+        style={{ 
+          maxWidth: '500px',
+          height: 'auto',
+          maxHeight: '95vh',
+          margin: '0 auto'
+        }}
+      >
+        <div 
+          className="modal-content border-0 shadow-lg" 
+          style={{ 
+            borderRadius: '16px', 
+            height: 'auto',
+            maxHeight: '95vh',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
           {/* Header */}
-          <div className="modal-header border-0 pb-0">
-            <h5 className="modal-title fw-bold">
+          <div className="modal-header border-0 p-4 pb-2 flex-shrink-0">
+            <h5 className="modal-title fw-bold mb-0">
               {isSignUp ? 'Create Account' : 'Welcome Back'}
             </h5>
             <button 
@@ -79,22 +103,29 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             </button>
           </div>
 
-          <div className="modal-body pt-2">
+          <div 
+            className="modal-body p-4 pt-0" 
+            style={{ 
+              overflowY: 'auto',
+              flex: '1 1 auto'
+            }}
+          >
             {/* User Type Toggle */}
-            <div className="d-flex mb-4 p-1" style={{ backgroundColor: '#f8f9fa', borderRadius: '12px' }}>
+            <div className="d-flex mb-3 p-1" style={{ backgroundColor: '#f8f9fa', borderRadius: '12px' }}>
               <button
                 type="button"
                 className={`flex-fill btn ${userType === 'customer' ? 'btn-primary' : 'btn-light'}`}
                 style={{
                   borderRadius: '8px',
                   border: 'none',
-                  padding: '8px 16px',
+                  padding: '6px 12px',
                   fontWeight: '500',
+                  fontSize: '14px',
                   transition: 'all 0.2s'
                 }}
                 onClick={() => setUserType('customer')}
               >
-                <User size={16} className="me-2" />
+                <User size={14} className="me-1" />
                 Customer
               </button>
               <button
@@ -103,13 +134,14 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 style={{
                   borderRadius: '8px',
                   border: 'none',
-                  padding: '8px 16px',
+                  padding: '6px 12px',
                   fontWeight: '500',
+                  fontSize: '14px',
                   transition: 'all 0.2s'
                 }}
                 onClick={() => setUserType('restaurant')}
               >
-                <Building size={16} className="me-2" />
+                <Building size={14} className="me-1" />
                 Restaurant
               </button>
             </div>
@@ -117,13 +149,13 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             <form onSubmit={handleSubmit}>
               {/* Name Field (Sign Up only) */}
               {isSignUp && (
-                <div className="mb-3">
-                  <label className="form-label fw-medium">
+                <div className="mb-2">
+                  <label className="form-label fw-medium small mb-1">
                     {userType === 'restaurant' ? 'Owner Name' : 'Full Name'}
                   </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control form-control-sm"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
@@ -131,7 +163,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                     style={{
                       borderRadius: '8px',
                       border: '1px solid #e0e0e0',
-                      padding: '12px 16px',
+                      padding: '10px 14px',
                       fontSize: '14px'
                     }}
                     required
@@ -141,11 +173,11 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
               {/* Restaurant Name (Restaurant Sign Up only) */}
               {isSignUp && userType === 'restaurant' && (
-                <div className="mb-3">
-                  <label className="form-label fw-medium">Restaurant Name</label>
+                <div className="mb-2">
+                  <label className="form-label fw-medium small mb-1">Restaurant Name</label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control form-control-sm"
                     name="restaurantName"
                     value={formData.restaurantName}
                     onChange={handleChange}
@@ -153,7 +185,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                     style={{
                       borderRadius: '8px',
                       border: '1px solid #e0e0e0',
-                      padding: '12px 16px',
+                      padding: '10px 14px',
                       fontSize: '14px'
                     }}
                     required
@@ -162,12 +194,12 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               )}
 
               {/* Email Field */}
-              <div className="mb-3">
-                <label className="form-label fw-medium">Email Address</label>
+              <div className="mb-2">
+                <label className="form-label fw-medium small mb-1">Email Address</label>
                 <div className="position-relative">
                   <input
                     type="email"
-                    className="form-control"
+                    className="form-control form-control-sm"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
@@ -175,26 +207,26 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                     style={{
                       borderRadius: '8px',
                       border: '1px solid #e0e0e0',
-                      padding: '12px 16px 12px 44px',
+                      padding: '10px 14px 10px 36px',
                       fontSize: '14px'
                     }}
                     required
                   />
                   <Mail 
-                    size={18} 
+                    size={16} 
                     className="position-absolute text-muted"
-                    style={{ left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+                    style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }}
                   />
                 </div>
               </div>
 
               {/* Phone Field (Sign Up only) */}
               {isSignUp && (
-                <div className="mb-3">
-                  <label className="form-label fw-medium">Phone Number</label>
+                <div className="mb-2">
+                  <label className="form-label fw-medium small mb-1">Phone Number</label>
                   <input
                     type="tel"
-                    className="form-control"
+                    className="form-control form-control-sm"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
@@ -202,7 +234,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                     style={{
                       borderRadius: '8px',
                       border: '1px solid #e0e0e0',
-                      padding: '12px 16px',
+                      padding: '10px 14px',
                       fontSize: '14px'
                     }}
                     required
@@ -211,12 +243,12 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               )}
 
               {/* Password Field */}
-              <div className="mb-3">
-                <label className="form-label fw-medium">Password</label>
+              <div className="mb-2">
+                <label className="form-label fw-medium small mb-1">Password</label>
                 <div className="position-relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="form-control"
+                    className="form-control form-control-sm"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
@@ -224,23 +256,23 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                     style={{
                       borderRadius: '8px',
                       border: '1px solid #e0e0e0',
-                      padding: '12px 44px 12px 44px',
+                      padding: '10px 36px 10px 36px',
                       fontSize: '14px'
                     }}
                     required
                   />
                   <Lock 
-                    size={18} 
+                    size={16} 
                     className="position-absolute text-muted"
-                    style={{ left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+                    style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }}
                   />
                   <button
                     type="button"
                     className="btn position-absolute"
-                    style={{ right: '8px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none' }}
+                    style={{ right: '6px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', padding: '4px' }}
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff size={18} className="text-muted" /> : <Eye size={18} className="text-muted" />}
+                    {showPassword ? <EyeOff size={16} className="text-muted" /> : <Eye size={16} className="text-muted" />}
                   </button>
                 </div>
               </div>
@@ -248,11 +280,11 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               {/* Confirm Password (Sign Up only) */}
               {isSignUp && (
                 <div className="mb-3">
-                  <label className="form-label fw-medium">Confirm Password</label>
+                  <label className="form-label fw-medium small mb-1">Confirm Password</label>
                   <div className="position-relative">
                     <input
                       type="password"
-                      className="form-control"
+                      className="form-control form-control-sm"
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
@@ -260,15 +292,15 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                       style={{
                         borderRadius: '8px',
                         border: '1px solid #e0e0e0',
-                        padding: '12px 16px 12px 44px',
+                        padding: '10px 14px 10px 36px',
                         fontSize: '14px'
                       }}
                       required
                     />
                     <Lock 
-                      size={18} 
+                      size={16} 
                       className="position-absolute text-muted"
-                      style={{ left: '14px', top: '50%', transform: 'translateY(-50%)' }}
+                      style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }}
                     />
                   </div>
                 </div>
@@ -277,14 +309,14 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="btn btn-primary w-100 fw-medium"
+                className="btn btn-primary w-100 fw-medium mb-3"
                 style={{
+                  backgroundColor: '#D67F51',
                   borderRadius: '8px',
-                  padding: '12px',
-                  fontSize: '16px',
-                  background: 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)',
+                  padding: '10px',
+                  fontSize: '15px',
                   border: 'none',
-                  boxShadow: '0 4px 15px rgba(0, 123, 255, 0.3)'
+                  boxShadow: '0 3px 12px rgba(0, 123, 255, 0.3)'
                 }}
               >
                 {isSignUp ? 'Create Account' : 'Sign In'}
@@ -292,12 +324,12 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             </form>
 
             {/* Switch Mode */}
-            <div className="text-center mt-4">
-              <p className="mb-0 text-muted">
+            <div className="text-center mb-2">
+              <p className="mb-0 text-muted small">
                 {isSignUp ? 'Already have an account?' : "Don't have an account?"}
                 <button
                   type="button"
-                  className="btn btn-link p-0 ms-1 fw-medium"
+                  className="btn btn-link p-0 ms-1 fw-medium small"
                   onClick={switchMode}
                   style={{ textDecoration: 'none' }}
                 >
@@ -308,11 +340,11 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
             {/* Forgot Password (Login only) */}
             {!isSignUp && (
-              <div className="text-center mt-2">
+              <div className="text-center">
                 <button
                   type="button"
                   className="btn btn-link p-0 text-muted"
-                  style={{ textDecoration: 'none', fontSize: '14px' }}
+                  style={{ textDecoration: 'none', fontSize: '13px' }}
                 >
                   Forgot your password?
                 </button>

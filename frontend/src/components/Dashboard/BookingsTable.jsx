@@ -4,7 +4,7 @@ import { Check, X, Phone, Mail, Calendar, Users } from "lucide-react";
 const initialBookings = [
   {
     id: 1,
-    customerName: "John Doe",
+    customerName: "peter karanja",
     phone: "+254722123456",
     email: "john.doe@email.com",
     date: "2025-07-20",

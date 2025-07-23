@@ -86,7 +86,12 @@ export default function Navbar({ cartCount = 0 }) {
                 )}
               </Link>
             </li>
-            {user && (
+            {user && user.userType === 'customer' && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/orders">Orders</Link>
+              </li>
+            )}
+            {user && user.userType === 'restaurant' && (
               <li className="nav-item">
                 <Link className="nav-link" to="/outlet-dashboard">Dashboard</Link>
               </li>
