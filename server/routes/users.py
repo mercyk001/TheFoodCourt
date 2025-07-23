@@ -39,7 +39,7 @@ def register_owner():
     new_owner = Owner(
         username=data['username'],
         email=data['email'],
-        phone_number=data['phone'],
+        phone_number=data['phone_number'],
         password_hash=hashed_password,
         role='owner'
     )
@@ -198,3 +198,34 @@ def get_profile():
             "role": user.role,
             "restaurants": restaurants
         })
+    
+@users_bp.route('/me', methods=['PATCH'])
+@jwt_required()
+def update_profile():
+    identity = get_jwt_identity()
+    user_id = identity['id']
+    role = identity['role']
+    data = request.get_json()
+
+    if role == 'customer':
+        user = Customer.query.get(user_id)
+    elif role == 'owner':
+        user = Owner.query.get(user_id)
+    else:
+        return jsonify({"error": "Invalid role"}), 403
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Update fields if present
+    if 'username' in data:
+        user.username = data['username']
+    if 'email' in data:
+        user.email = data['email']
+    if 'phone' in data or 'phone_number' in data:
+        user.phone = data.get('phone') or data.get('phone_number')
+
+    db.session.commit()
+
+    return jsonify({"message": "Profile updated successfully"}), 200
+

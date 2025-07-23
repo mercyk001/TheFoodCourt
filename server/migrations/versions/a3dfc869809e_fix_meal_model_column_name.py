@@ -1,8 +1,8 @@
-"""initial migrations
+"""Fix Meal model column name
 
-Revision ID: bab2be11db62
+Revision ID: a3dfc869809e
 Revises: 
-Create Date: 2025-07-17 17:22:31.223427
+Create Date: 2025-07-22 11:14:54.758955
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'bab2be11db62'
+revision = 'a3dfc869809e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -34,7 +34,7 @@ def upgrade():
     op.create_table('meals',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('food_description', sa.String(), nullable=True),
+    sa.Column('description', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
@@ -85,9 +85,10 @@ def upgrade():
     sa.Column('meal_id', sa.Integer(), nullable=False),
     sa.Column('restaurant_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('food_description', sa.String(), nullable=True),
     sa.Column('price', sa.Float(), nullable=False),
     sa.Column('category', sa.String(), nullable=False),
+    sa.Column('image_url', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['meal_id'], ['meals.id'], ),
     sa.ForeignKeyConstraint(['restaurant_id'], ['restaurants.id'], ),

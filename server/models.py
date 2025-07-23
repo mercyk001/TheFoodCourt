@@ -106,8 +106,9 @@ class Meal(db.Model, SerializerMixin):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    food_description = db.Column(db.String, nullable=True)
+    food_description = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
 
     menus = db.relationship('Menu', back_populates='meal')
     order_meals = db.relationship('OrderMeal', back_populates='meal')
@@ -126,7 +127,7 @@ class Menu(db.Model, SerializerMixin):
     meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'), nullable=False)
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=False)
     name = db.Column(db.String, nullable=False)
-    description = db.Column(db.String, nullable=True)
+    description = db.Column(db.String) 
     price = db.Column(db.Float, nullable=False)
     category = db.Column(db.String, nullable=False)  
     image_url = db.Column(db.String, nullable=True)
