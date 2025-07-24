@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Owner, Restaurant, Menu, Order, Meal
+from models import db, Owner, Restaurant, Menu, Order, Meal, OrderMeal, Reservation, Customer
+from datetime import datetime, date
 from functools import wraps
 
 
@@ -130,3 +131,149 @@ def update_order(id):
     db.session.commit()
 
     return jsonify(order.to_dict()), 200
+
+
+# Test endpoint to check restaurant data (remove in production)
+@dashboard_bp.route('/test/restaurants', methods=['GET'])
+def test_restaurant_data():
+    try:
+        # Get all restaurants
+        all_restaurants = Restaurant.query.all()
+        restaurant_data = [
+            {
+                "id": r.id,
+                "name": r.name,
+                "owner_id": r.owner_id,
+                "location": r.location,
+                "cuisine_type": r.cuisine_type
+            }
+            for r in all_restaurants
+        ]
+        
+        # Get all owners
+        all_owners = Owner.query.all()
+        owner_data = [
+            {
+                "id": o.id,
+                "username": o.username,
+                "email": o.email
+            }
+            for o in all_owners
+        ]
+        
+        return jsonify({
+            "restaurants": restaurant_data,
+            "owners": owner_data,
+            "total_restaurants": len(all_restaurants),
+            "total_owners": len(all_owners)
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Get restaurant count for owner - simplified
+@dashboard_bp.route('/stats/restaurants', methods=['GET'])
+@owner_required
+def get_restaurant_stats():
+    identity = get_jwt_identity()
+    user_id = identity['id']
+    
+    try:
+        # Direct query to get restaurants for this owner
+        restaurant_count = Restaurant.query.filter_by(owner_id=user_id).count()
+        
+        print(f"Restaurant stats - Owner ID: {user_id}, Count: {restaurant_count}")
+        
+        response_data = {
+            "activeOutlets": restaurant_count,
+            "totalOutlets": restaurant_count
+        }
+        
+        print(f"Restaurant stats response: {response_data}")
+        
+        return jsonify(response_data), 200
+    except Exception as e:
+        print(f"Error in get_restaurant_stats: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# Get order stats for owner
+@dashboard_bp.route('/stats/orders', methods=['GET'])
+@owner_required
+def get_order_stats():
+    identity = get_jwt_identity()
+    user_id = identity['id']
+    
+    try:
+        # Get owner's restaurants
+        user_restaurants = Restaurant.query.filter_by(owner_id=user_id).all()
+        restaurant_ids = [r.id for r in user_restaurants]
+        
+        if not restaurant_ids:
+            return jsonify({
+                "todaysOrders": 0,
+                "pendingOrders": 0,
+                "totalRevenue": 0
+            }), 200
+        
+        # Today's date
+        today = date.today()
+        today_start = datetime.combine(today, datetime.min.time())
+        today_end = datetime.combine(today, datetime.max.time())
+        
+        # Get all confirmed orders
+        all_orders = Order.query.filter(Order.is_confirmed == True).all()
+        
+        todays_orders = 0
+        pending_orders = 0
+        total_revenue = 0
+        
+        for order in all_orders:
+            # Check if order has items from owner's restaurants
+            order_meals = OrderMeal.query.filter_by(order_id=order.id).all()
+            
+            has_owner_items = False
+            order_revenue = 0
+            
+            for order_meal in order_meals:
+                meal = Meal.query.get(order_meal.meal_id)
+                if meal:
+                    menu_item = Menu.query.filter_by(meal_id=meal.id).first()
+                    if menu_item and menu_item.restaurant_id in restaurant_ids:
+                        has_owner_items = True
+                        order_revenue += order_meal.quantity * menu_item.price
+            
+            if has_owner_items:
+                total_revenue += order_revenue
+                
+                # Check if order is from today
+                if order.order_time and today_start <= order.order_time <= today_end:
+                    todays_orders += 1
+                
+                # Check if order is pending
+                if order.order_status and order.order_status.lower() in ['pending', 'received']:
+                    pending_orders += 1
+        
+        return jsonify({
+            "todaysOrders": todays_orders,
+            "pendingOrders": pending_orders,
+            "totalRevenue": total_revenue
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Get booking stats
+@dashboard_bp.route('/stats/bookings', methods=['GET'])
+@owner_required
+def get_booking_stats():
+    try:
+        # Count all reservations with confirmed or pending status
+        total_bookings = Reservation.query.filter(
+            Reservation.status.in_(['confirmed', 'pending'])
+        ).count()
+        
+        return jsonify({
+            "tableBookings": total_bookings
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

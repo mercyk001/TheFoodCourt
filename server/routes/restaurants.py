@@ -13,6 +13,18 @@ def get_restaurants():
     return jsonify([restaurant.to_dict() for restaurant in restaurants]), 200
 
 
+# GET /restaurants/my - Owner only (get owner's restaurants)
+@restaurants_bp.route('/my', methods=['GET'])
+@jwt_required()
+def get_my_restaurants():
+    identity = get_jwt_identity()
+    if identity["role"] != "owner":
+        return jsonify({"error": "Only owners can access this endpoint"}), 403
+    
+    restaurants = Restaurant.query.filter_by(owner_id=identity["id"]).all()
+    return jsonify([restaurant.to_dict() for restaurant in restaurants]), 200
+
+
 # GET /restaurants/<id> - Public
 @restaurants_bp.route('/<int:restaurant_id>', methods=['GET'])
 def get_restaurant(restaurant_id):

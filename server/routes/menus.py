@@ -5,10 +5,16 @@ from sqlalchemy.exc import IntegrityError
 
 menu_bp = Blueprint('menu', __name__, url_prefix='/menus')
 
-# Get all menu items
+# Get all menu items (with optional restaurant filter)
 @menu_bp.route('/', methods=['GET'])
 def get_menus():
-    menus = Menu.query.all()
+    restaurant_id = request.args.get('restaurant_id')
+    
+    if restaurant_id:
+        menus = Menu.query.filter_by(restaurant_id=restaurant_id).all()
+    else:
+        menus = Menu.query.all()
+    
     return jsonify([menu.to_dict() for menu in menus]), 200
 
 # Get a specific menu item

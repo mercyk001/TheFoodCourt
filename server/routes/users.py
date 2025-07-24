@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from flask_jwt_extended import set_access_cookies
+from flask_jwt_extended import set_access_cookies, unset_jwt_cookies
 
 from models import db, Customer, Owner, Restaurant
 
@@ -94,7 +94,9 @@ def login():
 @users_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_profile():
+    print("JWT cookies received:", request.cookies)  # Debug logging
     identity = get_jwt_identity()
+    print("JWT identity:", identity)  # Debug logging
     user_id = identity['id']
     role = identity['role']
 
@@ -164,4 +166,12 @@ def update_profile():
     db.session.commit()
 
     return jsonify({"message": "Profile updated successfully"}), 200
+
+# Logout endpoint
+@users_bp.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    response = make_response(jsonify({"message": "Logged out successfully"}))
+    unset_jwt_cookies(response)
+    return response, 200
 

@@ -8,11 +8,17 @@ import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import OutletDashboard from './pages/OutletDashboard';
 import Layout from './components/Layout';
-import { AuthProvider } from './contexts/AuthContext';
+import LoadingScreen from './components/LoadingScreen';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
-function App() {
+function AppContent() {
   const [cartItems, setCartItems] = useState([]);
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   const handleAddToCart = (meal) => {
     const existing = cartItems.find(item => item.id === meal.id);
@@ -55,48 +61,54 @@ function App() {
     cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
+    <Router>
+      <Routes>
+        <Route
+          element={
+            <Layout cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} />
+          }
+        >
+          <Route path="/" element={<Home />} />
+          <Route path="/menu" element={<Menu onAddToCart={handleAddToCart} />} />
           <Route
+            path="/cart"
             element={
-              <Layout cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} />
+              <Cart
+                cartItems={cartItems}
+                updateQuantity={handleUpdateQuantity}
+                removeItem={handleRemoveItem}
+                clearCart={handleClearCart}
+                getTotal={getTotal}
+              />
             }
-          >
-            <Route path="/" element={<Home />} />
-            <Route path="/menu" element={<Menu onAddToCart={handleAddToCart} />} />
-            <Route
-              path="/cart"
-              element={
-                <Cart
-                  cartItems={cartItems}
-                  updateQuantity={handleUpdateQuantity}
-                  removeItem={handleRemoveItem}
-                  clearCart={handleClearCart}
-                  getTotal={getTotal}
-                />
-              }
-            />
-            <Route path="/tablebooking" element={<TableBooking />} />
-            <Route
-              path="/orders"
-              element={
-                <ProtectedRoute>
-                  <Orders />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/outlet-dashboard"
-              element={
-                <ProtectedRoute>
-                  <OutletDashboard />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
-        </Routes>
-      </Router>
+          />
+          <Route path="/tablebooking" element={<TableBooking />} />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/outlet-dashboard"
+            element={
+              <ProtectedRoute>
+                <OutletDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+      </Routes>
+    </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

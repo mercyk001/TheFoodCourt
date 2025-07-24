@@ -102,3 +102,32 @@ def update_reservation(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
+
+
+# PATCH /reservations/<id>/status - Update reservation status (JWT Protected for owners)
+@reservations_bp.route('/<int:id>/status', methods=['PATCH'])
+@jwt_required()
+def update_reservation_status(id):
+    identity = get_jwt_identity()
+    if identity['role'] != 'owner':
+        return jsonify({'error': 'Only restaurant owners can update reservation status'}), 403
+
+    reservation = Reservation.query.get(id)
+    if not reservation:
+        return jsonify({'error': 'Reservation not found'}), 404
+
+    data = request.get_json()
+    new_status = data.get('status')
+    
+    # Only allow confirmed and rejected statuses for owners
+    if new_status not in ['confirmed', 'rejected']:
+        return jsonify({'error': 'Status can only be "confirmed" or "rejected"'}), 400
+
+    try:
+        reservation.status = new_status
+        db.session.commit()
+        return jsonify(reservation.to_dict()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400

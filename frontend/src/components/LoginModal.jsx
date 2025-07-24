@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { User, Building, Mail, Lock, Eye, EyeOff, X } from 'lucide-react';
+import apiService from '../services/api';
+import { useToast } from './Toast';
 
 export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   const [userType, setUserType] = useState('customer'); // 'customer' or 'restaurant'
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { showToast, ToastContainer } = useToast();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
     name: '',
     restaurantName: '',
-    phone: ''
+    phone: '',
+    location: '',
+    cuisineType: ''
   });
 
   const handleChange = (e) => {
@@ -21,25 +28,125 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login/signup logic here
-    console.log('Form submitted:', { userType, isSignUp, formData });
-    
-    // Simulate successful login/signup
-    const userData = {
-      name: formData.name || 'Guest',
-      email: formData.email,
-      userType: userType,
-      avatar: null // Default no avatar
-    };
-    
-    // Call the success callback with user data
-    if (onLoginSuccess) {
-      onLoginSuccess(userData);
+    setLoading(true);
+    setError('');
+
+    try {
+      if (isSignUp) {
+        // Registration
+        if (formData.password !== formData.confirmPassword) {
+          throw new Error('Passwords do not match');
+        }
+
+        let registrationMessage = '';
+        if (userType === 'customer') {
+          await apiService.registerCustomer({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+          });
+          registrationMessage = `Welcome ${formData.name}! Your customer account has been created successfully. Please log in to continue.`;
+        } else {
+          await apiService.registerOwner({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+            restaurantName: formData.restaurantName,
+            location: formData.location,
+            cuisineType: formData.cuisineType,
+          });
+          registrationMessage = `Welcome ${formData.name}! Your restaurant "${formData.restaurantName}" has been registered successfully. Please log in to continue.`;
+        }
+
+        // Show success toast
+        showToast(registrationMessage, 'success', 5000);
+
+        // Switch to login tab after successful registration
+        setIsSignUp(false);
+        setError('');
+        
+        // Clear password fields but keep email for easy login
+        const emailToKeep = formData.email;
+        resetForm();
+        setFormData(prev => ({ ...prev, email: emailToKeep }));
+        
+      } else {
+        // Login
+        const loginResponse = await apiService.loginUser(formData.email, formData.password);
+        
+        // Check if the selected user type matches the backend role
+        const backendRole = loginResponse.data.role;
+        const expectedRole = userType === 'restaurant' ? 'owner' : 'customer';
+        
+        if (backendRole !== expectedRole) {
+          // Role mismatch - show invalid credentials error
+          if (userType === 'restaurant') {
+            throw new Error('Invalid credentials. This account is not registered as a restaurant owner.');
+          } else {
+            throw new Error('Invalid credentials. This account is not registered as a customer.');
+          }
+        }
+        
+        let userData;
+        
+        // Check if login response contains user data directly
+        if (loginResponse.data && (loginResponse.data.user || loginResponse.data.id || loginResponse.data.username)) {
+          userData = loginResponse.data.user || loginResponse.data;
+        } else {
+          // If login response doesn't contain user data, get user profile
+          // Add a delay to ensure JWT cookie/token is processed
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          try {
+            const profileResponse = await apiService.getUserProfile();
+            userData = profileResponse.data;
+            console.log('Profile data retrieved:', userData);
+          } catch (profileError) {
+            console.error('Profile retrieval failed:', profileError);
+            console.log('Login response was:', loginResponse);
+            
+            // If getting profile fails, try to extract info from login response
+            if (loginResponse.data && (loginResponse.data.access_token || loginResponse.data.token)) {
+              throw new Error('Login successful and JWT token received, but profile retrieval failed. This suggests the backend JWT configuration needs adjustment.');
+            }
+            
+            // Provide more specific error message
+            if (profileError.message.includes('401') || profileError.message.includes('Unauthorized')) {
+              throw new Error('Login successful but JWT authentication failed. The backend may not be setting the JWT cookie properly or the token format is incorrect.');
+            }
+            
+            throw new Error('Login successful but unable to retrieve user profile. ' + profileError.message);
+          }
+        }
+
+        // Transform backend role to frontend userType
+        const userDataFormatted = {
+          id: userData.id,
+          name: userData.username || userData.name,
+          email: userData.email,
+          phone: userData.phone || userData.phone_number,
+          userType: userData.role === 'owner' ? 'restaurant' : 'customer',
+          role: userData.role,
+          avatar: null,
+          restaurants: userData.restaurants || []
+        };
+
+        if (onLoginSuccess) {
+          onLoginSuccess(userDataFormatted);
+        }
+
+        onClose();
+      }
+    } catch (error) {
+      console.error('Authentication error:', error);
+      setError(error.message || 'An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    
-    onClose();
   };
 
   const resetForm = () => {
@@ -49,8 +156,11 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
       confirmPassword: '',
       name: '',
       restaurantName: '',
-      phone: ''
+      phone: '',
+      location: '',
+      cuisineType: ''
     });
+    setError('');
   };
 
   const switchMode = () => {
@@ -147,6 +257,13 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             </div>
 
             <form onSubmit={handleSubmit}>
+              {/* Error Message */}
+              {error && (
+                <div className="alert alert-danger py-2 mb-3" style={{ fontSize: '14px', borderRadius: '8px' }}>
+                  {error}
+                </div>
+              )}
+
               {/* Name Field (Sign Up only) */}
               {isSignUp && (
                 <div className="mb-2">
@@ -167,6 +284,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                       fontSize: '14px'
                     }}
                     required
+                    disabled={loading}
                   />
                 </div>
               )}
@@ -189,7 +307,58 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                       fontSize: '14px'
                     }}
                     required
+                    disabled={loading}
                   />
+                </div>
+              )}
+
+              {/* Location (Restaurant Sign Up only) */}
+              {isSignUp && userType === 'restaurant' && (
+                <div className="mb-2">
+                  <label className="form-label fw-medium small mb-1">Location</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    placeholder="Enter restaurant location"
+                    style={{
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                      padding: '10px 14px',
+                      fontSize: '14px'
+                    }}
+                    disabled={loading}
+                  />
+                </div>
+              )}
+
+              {/* Cuisine Type (Restaurant Sign Up only) */}
+              {isSignUp && userType === 'restaurant' && (
+                <div className="mb-2">
+                  <label className="form-label fw-medium small mb-1">Cuisine Type</label>
+                  <select
+                    className="form-control form-control-sm"
+                    name="cuisineType"
+                    value={formData.cuisineType}
+                    onChange={handleChange}
+                    style={{
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                      padding: '10px 14px',
+                      fontSize: '14px'
+                    }}
+                    disabled={loading}
+                  >
+                    <option value="">Select cuisine type</option>
+                    <option value="Kenyan">Kenyan</option>
+                    <option value="Nigerian">Nigerian</option>
+                    <option value="Congolese">Congolese</option>
+                    <option value="Ethiopian">Ethiopian</option>
+                    <option value="Mixed">Mixed</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
               )}
 
@@ -211,6 +380,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                       fontSize: '14px'
                     }}
                     required
+                    disabled={loading}
                   />
                   <Mail 
                     size={16} 
@@ -238,6 +408,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                       fontSize: '14px'
                     }}
                     required
+                    disabled={loading}
                   />
                 </div>
               )}
@@ -260,6 +431,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                       fontSize: '14px'
                     }}
                     required
+                    disabled={loading}
                   />
                   <Lock 
                     size={16} 
@@ -271,6 +443,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                     className="btn position-absolute"
                     style={{ right: '6px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', padding: '4px' }}
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
                   >
                     {showPassword ? <EyeOff size={16} className="text-muted" /> : <Eye size={16} className="text-muted" />}
                   </button>
@@ -296,6 +469,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                         fontSize: '14px'
                       }}
                       required
+                      disabled={loading}
                     />
                     <Lock 
                       size={16} 
@@ -309,17 +483,32 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="btn btn-primary w-100 fw-medium mb-3"
+                className="btn btn-primary w-100 fw-medium mb-3 d-flex align-items-center justify-content-center"
                 style={{
-                  backgroundColor: '#D67F51',
+                  backgroundColor: loading ? '#6c757d' : '#D67F51',
                   borderRadius: '8px',
                   padding: '10px',
                   fontSize: '15px',
                   border: 'none',
-                  boxShadow: '0 3px 12px rgba(0, 123, 255, 0.3)'
+                  boxShadow: '0 3px 12px rgba(0, 123, 255, 0.3)',
+                  cursor: loading ? 'not-allowed' : 'pointer'
                 }}
+                disabled={loading}
               >
-                {isSignUp ? 'Create Account' : 'Sign In'}
+                {loading ? (
+                  <>
+                    <div 
+                      className="spinner-border spinner-border-sm me-2" 
+                      role="status"
+                      style={{ width: '16px', height: '16px' }}
+                    >
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                  </>
+                ) : (
+                  isSignUp ? 'Create Account' : 'Sign In'
+                )}
               </button>
             </form>
 
@@ -353,6 +542,9 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
           </div>
         </div>
       </div>
+      
+      {/* Toast Container for notifications */}
+      <ToastContainer />
     </div>
   );
 };

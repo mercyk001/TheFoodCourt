@@ -18,6 +18,14 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///foodcourt.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_SECRET_KEY"] = "super-secret-key"
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
+app.config["JWT_COOKIE_SECURE"] = False  # Set to True in production with HTTPS
+app.config["JWT_COOKIE_CSRF_PROTECT"] = False  
+app.config["JWT_COOKIE_SAMESITE"] = "Lax"
+
+# Disable automatic trailing slash redirects to prevent CORS preflight issues
+app.url_map.strict_slashes = False
 
 
 
@@ -26,7 +34,17 @@ app.config["JWT_SECRET_KEY"] = "super-secret-key"
 
 db.init_app(app)
 migrate = Migrate(app, db)
-CORS(app)
+
+# Configure CORS with more explicit settings
+CORS(app, 
+         origins=['http://localhost:3000', 'http://localhost:5555'],
+         supports_credentials=True,
+         allow_headers=['Content-Type', 'Authorization', 'Cookie'],
+         expose_headers=['Set-Cookie'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+         vary_header=False
+    )
+
 api = Api(app)
 jwt = JWTManager(app)
 
@@ -43,6 +61,22 @@ app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
 @app.route('/')
 def index():
     return "Welcome to Food Court!"
+
+# Add a test endpoint to verify CORS
+@app.route('/test', methods=['GET', 'POST', 'OPTIONS'])
+def test():
+    return jsonify({"message": "CORS test successful", "method": request.method})
+
+# Manual CORS preflight handler for all routes
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", request.headers.get('Origin', '*'))
+        response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization,Cookie")
+        response.headers.add('Access-Control-Allow-Methods', "GET,PUT,POST,DELETE,PATCH,OPTIONS")
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
 
 if __name__ == '__main__':
     app.run(debug=True, port=5555)

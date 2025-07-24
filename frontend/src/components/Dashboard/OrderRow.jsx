@@ -13,20 +13,20 @@ export const OrderRow = ({
   onStatusChange,
 }) => {
   const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case "Pending":
+    switch (status.toLowerCase()) {
+      case "pending":
         return "bg-warning text-dark";
-      case "Accepted":
+      case "accepted":
         return "bg-info text-white";
-      case "Preparing":
+      case "preparing":
         return "bg-primary text-white";
-      case "Ready":
+      case "ready":
         return "bg-success text-white";
-      case "Delivered":
+      case "delivered":
         return "bg-success text-white";
-      case "Completed":
+      case "completed":
         return "bg-dark text-white";
-      case "Rejected":
+      case "rejected":
         return "bg-danger text-white";
       default:
         return "bg-secondary text-white";
@@ -46,7 +46,7 @@ export const OrderRow = ({
       <td className="text-wrap" style={{ maxWidth: "200px" }}>{items}</td>
       <td className="fw-bold text-success">{total}</td>
       <td>
-        {(status === "Pending" || status === "Rejected") ? (
+        {(status.toLowerCase() === "pending" || status.toLowerCase() === "rejected") ? (
           <span className={`badge rounded-pill ${getStatusBadgeClass(status)}`}>
             {status}
           </span>
@@ -57,9 +57,9 @@ export const OrderRow = ({
             onChange={(e) => onStatusChange(e.target.value)}
             style={{
               minWidth: "120px",
-              backgroundColor: status === "Completed" ? "#f8f9fa" : "white"
+              backgroundColor: status.toLowerCase() === "completed" ? "#f8f9fa" : "white"
             }}
-            disabled={status === "Completed"}
+            disabled={status.toLowerCase() === "completed"}
           >
             {statusOptions.map((option) => (
               <option key={option} value={option}>
@@ -70,7 +70,7 @@ export const OrderRow = ({
         )}
       </td>
       <td>
-        {status === "Pending" ? (
+        {status.toLowerCase() === "pending" ? (
           <div className="d-flex gap-2">
             <button 
               className="btn btn-sm btn-success d-flex align-items-center gap-1"
@@ -89,9 +89,9 @@ export const OrderRow = ({
               Reject
             </button>
           </div>
-        ) : status === "Rejected" ? (
+        ) : status.toLowerCase() === "rejected" ? (
           <span className="text-muted small">Order Rejected</span>
-        ) : status === "Completed" ? (
+        ) : status.toLowerCase() === "completed" ? (
           <span className="text-success small fw-medium">✓ Completed</span>
         ) : (
           <span className="text-info small">In Progress</span>

@@ -1,30 +1,130 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StatsCard } from "../components/Dashboard/StatsCard";
 import { OrdersTable } from "../components/Dashboard/OrderTable";
 import { BookingsTable } from "../components/Dashboard/BookingsTable";
 import { OutletsTable } from "../components/Dashboard/OutletsTable";
 import { MenuItemsTable } from "../components/Dashboard/MenuItemsTable";
 import { DollarSign, Package, Store, Calendar } from "lucide-react";
+import apiService from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function OutletDashboard() {
   const [activeTab, setActiveTab] = useState("orders");
+  const [dashboardStats, setDashboardStats] = useState({
+    todaysOrders: 0,
+    pendingOrders: 0,
+    totalRevenue: 0,
+    activeOutlets: 0,
+    totalOutlets: 0,
+    tableBookings: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    console.log('Current user:', user);
+    if (user) {
+      console.log('User role:', user.role);
+      console.log('User userType:', user.userType);
+    }
+    if (user && user.role === 'owner') {
+      console.log('Loading dashboard stats for owner...');
+      loadDashboardStats();
+    } else {
+      console.log('User is not an owner or user is null');
+    }
+  }, [user]);
+
+  const loadDashboardStats = async () => {
+    try {
+      setLoading(true);
+      console.log('Loading dashboard stats...');
+      const response = await apiService.getDashboardStats();
+      console.log('Dashboard stats response:', response);
+      
+      // The response should now be the combined data object directly
+      const stats = {
+        todaysOrders: response.todaysOrders || 0,
+        pendingOrders: response.pendingOrders || 0,
+        totalRevenue: response.totalRevenue || 0,
+        activeOutlets: response.activeOutlets || 0,
+        totalOutlets: response.totalOutlets || 0,
+        tableBookings: response.tableBookings || 0
+      };
+      
+      console.log('Processed stats:', stats);
+      setDashboardStats(stats);
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
+      // Keep default values if error occurs
+      setDashboardStats({
+        todaysOrders: 0,
+        pendingOrders: 0,
+        totalRevenue: 0,
+        activeOutlets: 0,
+        totalOutlets: 0,
+        tableBookings: 0
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTabChange = (tabName) => {
+    setActiveTab(tabName);
+    // Refresh stats when switching tabs to keep data current
+    if (user && user.role === 'owner') {
+      loadDashboardStats();
+    }
+  };
   return (
     <div className="container py-5 ">
-      <h2 className="fw-bold">Outlet Dashboard</h2>
-      <p className="text-muted">Manage your orders, bookings, and menu items</p>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 className="fw-bold mb-1">Outlet Dashboard</h2>
+          <p className="text-muted mb-0">Manage your orders, bookings, and menu items</p>
+        </div>
+        <button 
+          className="btn btn-outline-primary btn-sm"
+          onClick={loadDashboardStats}
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Refresh Stats'}
+        </button>
+      </div>
 
       <div className="row g-3 my-4">
         <div className="col-md-6 col-lg-3">
-          <StatsCard title="Today's Orders" value={2} subtitle="1 pending" icon={<Package size={20} />} />
+          <StatsCard 
+            title="Today's Orders" 
+            value={loading ? "..." : (dashboardStats.todaysOrders || 0)} 
+            subtitle={loading ? "Loading..." : `${dashboardStats.pendingOrders || 0} pending`} 
+            icon={<Package size={20} />} 
+          />
         </div>
         <div className="col-md-6 col-lg-3">
-          <StatsCard title="Total Revenue" value="$17.82" subtitle="From completed orders" icon={<DollarSign size={20} />} />
+          <StatsCard 
+            title="Total Revenue" 
+            value={loading ? "..." : `KES ${(dashboardStats.totalRevenue || 0).toLocaleString()}`} 
+            subtitle="From completed orders" 
+            icon={<DollarSign size={20} />} 
+          />
         </div>
         <div className="col-md-6 col-lg-3">
-          <StatsCard title="Active Outlets" value={4} subtitle="Out of 4 total" icon={<Store size={20} />} />
+          <StatsCard 
+            title="Active Outlets" 
+            value={loading ? "..." : (dashboardStats.activeOutlets || 0)} 
+            subtitle={loading ? "Loading..." : `Out of ${dashboardStats.totalOutlets || 0} total`} 
+            icon={<Store size={20} />} 
+          />
         </div>
         <div className="col-md-6 col-lg-3">
-          <StatsCard title="Table Bookings" value={1} subtitle="Total reservations" icon={<Calendar size={20} />} />
+          <StatsCard 
+            title="Table Bookings" 
+            value={loading ? "..." : (dashboardStats.tableBookings || 0)} 
+            subtitle="Total reservations" 
+            icon={<Calendar size={20} />} 
+          />
         </div>
       </div>
 
@@ -40,7 +140,7 @@ export default function OutletDashboard() {
             padding: "12px 16px",
             fontWeight: activeTab === "orders" ? "600" : "500"
           }}
-          onClick={() => setActiveTab("orders")}
+          onClick={() => handleTabChange("orders")}
           type="button" 
           role="tab"
         >
@@ -57,7 +157,7 @@ export default function OutletDashboard() {
             padding: "12px 16px",
             fontWeight: activeTab === "bookings" ? "600" : "500"
           }}
-          onClick={() => setActiveTab("bookings")}
+          onClick={() => handleTabChange("bookings")}
           type="button" 
           role="tab"
         >
@@ -74,7 +174,7 @@ export default function OutletDashboard() {
             padding: "12px 16px",
             fontWeight: activeTab === "outlets" ? "600" : "500"
           }}
-          onClick={() => setActiveTab("outlets")}
+          onClick={() => handleTabChange("outlets")}
           type="button" 
           role="tab"
         >
@@ -91,7 +191,7 @@ export default function OutletDashboard() {
             padding: "12px 16px",
             fontWeight: activeTab === "menu-items" ? "600" : "500"
           }}
-          onClick={() => setActiveTab("menu-items")}
+          onClick={() => handleTabChange("menu-items")}
           type="button" 
           role="tab"
         >
