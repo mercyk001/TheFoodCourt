@@ -88,9 +88,16 @@ export const OrdersTable = () => {
       console.log('About to call getOrders API...');
       
       const response = await apiService.getOrders();
-      console.log('Orders API response:', response);
+      console.log('Orders API response:', response); // Debug log
       
-      setOrders(response.data || []);
+      // Handle nested data structure like in Orders.jsx
+      let orderData = response.data || response;
+      if (orderData.data && Array.isArray(orderData.data)) {
+        orderData = orderData.data;
+      }
+      
+      console.log('Order data:', orderData); // Debug log
+      setOrders(Array.isArray(orderData) ? orderData : []);
     } catch (error) {
       console.error('Error loading orders:', error);
       

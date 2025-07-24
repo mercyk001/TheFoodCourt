@@ -6,6 +6,41 @@ from datetime import datetime, timedelta
 
 reservations_bp = Blueprint('reservations', __name__, url_prefix='/reservations')
 
+# GET /reservations/my - Get customer's own reservations
+@reservations_bp.route('/my', methods=['GET'])
+@jwt_required()
+def get_customer_reservations():
+    identity = get_jwt_identity()
+    if identity['role'] != 'customer':
+        return jsonify({'error': 'Only customers can view their reservations'}), 403
+
+    customer_id = identity['id']
+    
+    try:
+        reservations = Reservation.query.filter_by(customer_id=customer_id).order_by(Reservation.reservation_time.desc()).all()
+        
+        reservations_data = []
+        for reservation in reservations:
+            # Get table info
+            table = Table.query.get(reservation.table_id)
+            
+            reservations_data.append({
+                "id": reservation.id,
+                "table_id": reservation.table_id,
+                "table_number": table.table_number if table else "Unknown",
+                "table_capacity": table.capacity if table else 0,
+                "reservation_time": reservation.reservation_time.isoformat() if reservation.reservation_time else None,
+                "duration": reservation.duration,
+                "members_count": reservation.members_count,
+                "status": reservation.status,
+                "created_at": reservation.created_at.isoformat() if hasattr(reservation, 'created_at') and reservation.created_at else None
+            })
+        
+        return jsonify({"data": reservations_data}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # POST /reservations - Book a table
 
 @reservations_bp.route('', methods=['POST'])

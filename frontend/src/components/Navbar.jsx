@@ -77,10 +77,42 @@ export default function Navbar({ cartCount = 0 }) {
               <Link className="nav-link" to="/tablebooking">Book Table</Link>
             </li>
             <li className="nav-item position-relative">
-              <Link className="nav-link d-flex align-items-center" to="/cart">
+              <Link 
+                className="nav-link d-flex align-items-center position-relative" 
+                to="/cart"
+                style={{
+                  transition: 'all 0.2s ease',
+                  borderRadius: '8px',
+                  padding: '8px 12px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = 'rgba(214, 127, 81, 0.1)';
+                  e.target.style.color = '#D67F51';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.color = '';
+                }}
+              >
                 🛒 Cart
                 {cartCount > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  <span 
+                    className="position-absolute badge rounded-pill"
+                    style={{
+                      backgroundColor: '#D67F51',
+                      color: 'white',
+                      top: '-2px',
+                      right: '-8px',
+                      fontSize: '12px',
+                      minWidth: '20px',
+                      height: '20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid white',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
+                  >
                     {cartCount}
                   </span>
                 )}

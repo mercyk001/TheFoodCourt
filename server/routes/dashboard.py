@@ -112,7 +112,7 @@ def view_orders():
     orders = Order.query.join(Order.reservation).join(Order.reservation.table).join(Order.reservation.table.restaurant)
     orders = orders.filter(Restaurant.owner_id == owner_id).all()
 
-    return jsonify([order.to_dict() for order in orders]), 200
+    return jsonify([order.to_dict_safe() for order in orders]), 200
 
 # Update order details
 @dashboard_bp.route('/orders/<int:id>', methods=['PUT'])
@@ -130,7 +130,7 @@ def update_order(id):
     order.estimated_serving_time = data.get('estimated_serving_time', order.estimated_serving_time)
     db.session.commit()
 
-    return jsonify(order.to_dict()), 200
+    return jsonify(order.to_dict_safe()), 200
 
 
 # Test endpoint to check restaurant data (remove in production)

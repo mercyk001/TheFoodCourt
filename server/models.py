@@ -20,7 +20,12 @@ class Customer(db.Model, SerializerMixin):
 
     reservations = db.relationship('Reservation', back_populates='customer')
 
-    serialize_rules = ('-reservations.customer',)
+    serialize_rules = (
+        '-reservations.customer',
+        '-reservations.orders', 
+        '-orders.customer',
+        '-orders.reservation'
+    )
 
     def __repr__(self):
         return f'<Customer {self.username}>'
@@ -40,7 +45,14 @@ class Reservation(db.Model, SerializerMixin):
     table = db.relationship('Table', back_populates='reservations')
     orders = db.relationship('Order', back_populates='reservation')
 
-    serialize_rules = ('-customer.reservations', '-table.reservations')
+    serialize_rules = (
+        '-customer.reservations', 
+        '-customer.orders',
+        '-table.reservations', 
+        '-orders.reservation',
+        '-orders.customer',
+        '-orders.restaurant'
+    )
 
     def __repr__(self):
         return f'<Reservation {self.id} for Customer {self.customer_id} >'
@@ -65,6 +77,8 @@ class Order(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     reservation_id = db.Column(db.Integer, db.ForeignKey('reservations.id'))
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=True)
     order_status = db.Column(db.String(50), nullable=False, default='pending')
     order_time = db.Column(db.DateTime, default=datetime.utcnow)
     is_cart = db.Column(db.Boolean, default=True)
@@ -73,9 +87,62 @@ class Order(db.Model, SerializerMixin):
     estimated_serving_time = db.Column(db.Integer, nullable=True)  # Estimated serving time in minutes
 
     reservation = db.relationship('Reservation', back_populates='orders')
+    customer = db.relationship('Customer', backref='orders')
+    restaurant = db.relationship('Restaurant', backref='orders')
     order_meals = db.relationship('OrderMeal', back_populates='order', cascade='all, delete-orphan')
 
-    serialize_rules = ('-reservation.orders', '-order_meals.order')
+    serialize_rules = (
+        '-reservation.orders', 
+        '-reservation.customer', 
+        '-reservation.table.reservations',
+        '-order_meals.order', 
+        '-order_meals.meal.order_meals',
+        '-order_meals.meal.menus',
+        '-customer.orders', 
+        '-customer.reservations',
+        '-restaurant.orders',
+        '-restaurant.menus',
+        '-restaurant.owner'
+    )
+
+    def to_dict_safe(self):
+        """Safe serialization method to avoid recursion"""
+        return {
+            'id': self.id,
+            'reservation_id': self.reservation_id,
+            'customer_id': self.customer_id,
+            'restaurant_id': self.restaurant_id,
+            'order_status': self.order_status,
+            'order_time': self.order_time.isoformat() if self.order_time else None,
+            'is_cart': self.is_cart,
+            'total_price': self.total_price,
+            'is_confirmed': self.is_confirmed,
+            'estimated_serving_time': self.estimated_serving_time,
+            'customer': {
+                'id': self.customer.id,
+                'username': self.customer.username,
+                'email': self.customer.email
+            } if self.customer else None,
+            'restaurant': {
+                'id': self.restaurant.id,
+                'name': self.restaurant.name,
+                'location': self.restaurant.location,
+                'cuisine_type': self.restaurant.cuisine_type
+            } if self.restaurant else None,
+            'order_meals': [
+                {
+                    'id': om.id,
+                    'meal_id': om.meal_id,
+                    'quantity': om.quantity,
+                    'sub_total': om.sub_total,
+                    'meal': {
+                        'id': om.meal.id,
+                        'name': om.meal.name,
+                        'food_description': om.meal.food_description
+                    } if om.meal else None
+                } for om in self.order_meals
+            ]
+        }
 
 
     def __repr__(self):
@@ -95,7 +162,14 @@ class OrderMeal(db.Model, SerializerMixin):
     order = db.relationship('Order', back_populates='order_meals')
     meal = db.relationship('Meal', back_populates='order_meals')
 
-    serialize_rules = ('-order.order_meals', '-meal.order_meals')
+    serialize_rules = (
+        '-order.order_meals', 
+        '-order.reservation', 
+        '-order.customer', 
+        '-order.restaurant',
+        '-meal.order_meals', 
+        '-meal.menus'
+    )
 
     def __repr__(self):
         return f'<OrderMeal {self.id} for Order {self.order_id} and Meal {self.meal_id}>'
@@ -176,7 +250,13 @@ class Restaurant(db.Model, SerializerMixin):
     owner = db.relationship('Owner', back_populates='restaurants')
     menus = db.relationship('Menu', back_populates='restaurant')
 
-    serialize_rules = ('-owner.restaurants', '-menus.restaurant')
+    serialize_rules = (
+        '-owner.restaurants', 
+        '-menus.restaurant',
+        '-menus.meal',
+        '-orders.restaurant',
+        '-orders.reservation'
+    )
 
     def __repr__(self):
         return f'<Restaurant {self.name} located at {self.location}>'

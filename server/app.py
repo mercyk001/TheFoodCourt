@@ -55,7 +55,7 @@ app.register_blueprint(reservations_bp)
 app.register_blueprint(restaurants_bp)
 app.register_blueprint(meals_bp)
 app.register_blueprint(tables_bp)
-app.register_blueprint(orders_bp, url_prefix='/api')
+app.register_blueprint(orders_bp)
 app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
 
 @app.route('/')

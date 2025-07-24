@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5555'; // Updated to match your Flask backend port
+const API_BASE_URL = 'http://localhost:5555'; 
 
 class ApiService {
   constructor() {
@@ -13,8 +13,8 @@ class ApiService {
         'Content-Type': 'application/json',
         ...options.headers,
       },
-      credentials: 'include', // Include cookies for JWT
-      mode: 'cors', // Explicitly set CORS mode
+      credentials: 'include', 
+      mode: 'cors', 
       ...options,
     };
 
@@ -278,20 +278,67 @@ class ApiService {
 
   // Order methods
   async getOrders() {
-    return this.makeRequest('/api/orders', {
+    return this.makeRequest('/orders', {
       method: 'GET',
     });
   }
 
+  // Customer-specific methods for orders and reservations
+  async getCustomerOrders() {
+    return this.makeRequest('/orders/my', {
+      method: 'GET',
+    });
+  }
+
+  async getCustomerReservations() {
+    return this.makeRequest('/reservations/my', {
+      method: 'GET',
+    });
+  }
+
+  // Cart methods for customers
+  async getCart() {
+    return this.makeRequest('/orders/cart', {
+      method: 'GET',
+    });
+  }
+
+  async addToCart(mealId, quantity = 1) {
+    return this.makeRequest('/orders/cart', {
+      method: 'POST',
+      body: JSON.stringify({ meal_id: mealId, quantity }),
+    });
+  }
+
+  async updateCartItem(orderMealId, quantity) {
+    return this.makeRequest('/orders/cart', {
+      method: 'PUT',
+      body: JSON.stringify({ order_meal_id: orderMealId, quantity }),
+    });
+  }
+
+  async removeFromCart(orderMealId) {
+    return this.makeRequest('/orders/cart', {
+      method: 'DELETE',
+      body: JSON.stringify({ order_meal_id: orderMealId }),
+    });
+  }
+
+  async checkoutCart() {
+    return this.makeRequest('/orders/checkout', {
+      method: 'POST',
+    });
+  }
+
   async createOrder(orderData) {
-    return this.makeRequest('/api/orders', {
+    return this.makeRequest('/orders', {
       method: 'POST',
       body: JSON.stringify(orderData),
     });
   }
 
   async updateOrderStatus(orderId, status) {
-    return this.makeRequest(`/api/orders/${orderId}/status`, {
+    return this.makeRequest(`/orders/${orderId}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
@@ -408,6 +455,29 @@ class ApiService {
     return this.makeRequest('/reservations', {
       method: 'POST',
       body: JSON.stringify(reservationData),
+    });
+  }
+
+  // Table methods
+  async getTables() {
+    return this.makeRequest('/tables/', {
+      method: 'GET',
+    });
+  }
+
+  async getAvailableTables(date, time, guests) {
+    let url = `/tables/available?date=${date}`;
+    if (time) url += `&time=${time}`;
+    if (guests) url += `&guests=${guests}`;
+    
+    return this.makeRequest(url, {
+      method: 'GET',
+    });
+  }
+
+  async getTableAvailabilitySummary(date) {
+    return this.makeRequest(`/tables/availability-summary?date=${date}`, {
+      method: 'GET',
     });
   }
 

@@ -33,10 +33,13 @@ function AppContent() {
         ...cartItems,
         {
           id: meal.id,
+          meal_id: meal.meal_id, // Include meal_id for backend compatibility
           name: meal.name,
           quantity: 1,
           price: meal.price,
+          description: meal.description,
           restaurant: meal.restaurant,
+          restaurant_id: meal.restaurant_id, // Include restaurant_id
           image: meal.image || '/placeholder.jpg',
         },
       ]);
@@ -57,8 +60,9 @@ function AppContent() {
 
   const handleClearCart = () => setCartItems([]);
 
-  const getTotal = () =>
-    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const handleCartUpdate = (newCartItems) => {
+    setCartItems(newCartItems);
+  };
 
   return (
     <Router>
@@ -78,7 +82,7 @@ function AppContent() {
                 updateQuantity={handleUpdateQuantity}
                 removeItem={handleRemoveItem}
                 clearCart={handleClearCart}
-                getTotal={getTotal}
+                onCartUpdate={handleCartUpdate}
               />
             }
           />

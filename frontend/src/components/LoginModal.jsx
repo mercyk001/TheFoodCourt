@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { User, Building, Mail, Lock, Eye, EyeOff, X } from 'lucide-react';
 import apiService from '../services/api';
 import { useToast } from './Toast';
+import { useAuth } from '../contexts/AuthContext';
 
 export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
+  const { login, checkAuthStatus } = useAuth();
   const [userType, setUserType] = useState('customer'); // 'customer' or 'restaurant'
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -90,7 +92,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
             throw new Error('Invalid credentials. This account is not registered as a customer.');
           }
         }
-        
+
         let userData;
         
         // Check if login response contains user data directly
@@ -134,6 +136,9 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
           avatar: null,
           restaurants: userData.restaurants || []
         };
+
+        // Update AuthContext with the formatted user data
+        login(userDataFormatted);
 
         if (onLoginSuccess) {
           onLoginSuccess(userDataFormatted);

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Form, Row, Col, Container } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 import { useToast } from '../components/Toast';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/LoginModal';
 
 export default function Menu({ onAddToCart }) {
   const [dishes, setDishes] = useState([]);
@@ -9,7 +12,12 @@ export default function Menu({ onAddToCart }) {
   const [filters, setFilters] = useState({ cuisine: '', category: '', price: '' });
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState(null); // Track which item is being added
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showCartButton, setShowCartButton] = useState(false);
   const { showToast, ToastContainer } = useToast();
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadMenuData();
@@ -52,18 +60,39 @@ export default function Menu({ onAddToCart }) {
     }
   };
 
-  const handleAddToCart = (dish) => {
-    // Call the parent's onAddToCart function
-    if (onAddToCart) {
-      onAddToCart(dish);
+  const handleAddToCart = async (dish) => {
+    if (!isAuthenticated) {
+      showToast('Please log in to add items to cart', 'warning');
+      setShowLoginModal(true);
+      return;
     }
-    
-    // Show custom toast notification
-    showToast(
-      `${dish.name} added to cart! KES ${dish.price?.toLocaleString()} • ${dish.restaurant}`,
-      'success',
-      3000
-    );
+
+    // Check if user is authenticated and is a customer for checkout
+    if (isAuthenticated && user && user.role !== 'customer') {
+      showToast('Only customers can add items to cart', 'error');
+      return;
+    }
+
+    setAddingToCart(dish.id); // Set loading state for this specific item
+
+    try {
+      // Add to local cart for immediate UI feedback
+      if (onAddToCart) {
+        onAddToCart(dish);
+      }
+      
+      showToast(`${dish.name} added to cart!`, 'success', 2000);
+
+      // Show cart button temporarily
+      setShowCartButton(true);
+      setTimeout(() => setShowCartButton(false), 3000);
+
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showToast('Failed to add item to cart. Please try again.', 'error');
+    } finally {
+      setAddingToCart(null); // Clear loading state
+    }
   };
 
   useEffect(() => {
@@ -75,9 +104,29 @@ export default function Menu({ onAddToCart }) {
     setFiltered(results);
   }, [dishes, filters]);
 
-  // Get unique values for filter options
-  const uniqueCuisines = [...new Set(dishes.map(dish => dish.cuisine).filter(Boolean))];
-  const uniqueCategories = [...new Set(dishes.map(dish => dish.category).filter(Boolean))];
+  // Get available filter options based on current filtering state
+  const getAvailableOptions = () => {
+    // Start with all dishes, then apply other filters to get available options
+    let baseResults = [...dishes];
+    
+    // For cuisine options, apply category filter but not cuisine filter
+    let cuisineBase = [...dishes];
+    if (filters.category) {
+      cuisineBase = cuisineBase.filter(d => d.category === filters.category);
+    }
+    const availableCuisines = [...new Set(cuisineBase.map(dish => dish.cuisine).filter(Boolean))];
+    
+    // For category options, apply cuisine filter but not category filter
+    let categoryBase = [...dishes];
+    if (filters.cuisine) {
+      categoryBase = categoryBase.filter(d => d.cuisine === filters.cuisine);
+    }
+    const availableCategories = [...new Set(categoryBase.map(dish => dish.category).filter(Boolean))];
+    
+    return { availableCuisines, availableCategories };
+  };
+
+  const { availableCuisines, availableCategories } = getAvailableOptions();
 
   if (loading) {
     return (
@@ -94,16 +143,30 @@ export default function Menu({ onAddToCart }) {
 
   return (
     <Container className="py-4">
-      <h2 className="text-center mb-4">Browse Menu</h2>
+      <h2 className="text-center mb-4">Find Something Tasty!</h2>
 
       <Row className="mb-4">
         <Col md>
           <Form.Select 
             value={filters.cuisine}
             onChange={e => setFilters(f => ({ ...f, cuisine: e.target.value }))}
+            style={{
+              borderColor: '#D67F51',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              fontSize: '0.9rem',
+              transition: 'all 0.2s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#D67F51';
+              e.target.style.boxShadow = '0 0 0 0.2rem rgba(214, 127, 81, 0.25)';
+            }}
+            onBlur={(e) => {
+              e.target.style.boxShadow = 'none';
+            }}
           >
-            <option value="">Filter by Cuisine</option>
-            {uniqueCuisines.map(cuisine => (
+            <option value="">All Cuisines ({availableCuisines.length})</option>
+            {availableCuisines.map(cuisine => (
               <option key={cuisine} value={cuisine}>{cuisine}</option>
             ))}
           </Form.Select>
@@ -112,9 +175,23 @@ export default function Menu({ onAddToCart }) {
           <Form.Select 
             value={filters.category}
             onChange={e => setFilters(f => ({ ...f, category: e.target.value }))}
+            style={{
+              borderColor: '#D67F51',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              fontSize: '0.9rem',
+              transition: 'all 0.2s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#D67F51';
+              e.target.style.boxShadow = '0 0 0 0.2rem rgba(214, 127, 81, 0.25)';
+            }}
+            onBlur={(e) => {
+              e.target.style.boxShadow = 'none';
+            }}
           >
-            <option value="">Filter by Category</option>
-            {uniqueCategories.map(category => (
+            <option value="">All Categories ({availableCategories.length})</option>
+            {availableCategories.map(category => (
               <option key={category} value={category}>{category}</option>
             ))}
           </Form.Select>
@@ -123,6 +200,20 @@ export default function Menu({ onAddToCart }) {
           <Form.Select 
             value={filters.price}
             onChange={e => setFilters(f => ({ ...f, price: e.target.value }))}
+            style={{
+              borderColor: '#D67F51',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              fontSize: '0.9rem',
+              transition: 'all 0.2s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#D67F51';
+              e.target.style.boxShadow = '0 0 0 0.2rem rgba(214, 127, 81, 0.25)';
+            }}
+            onBlur={(e) => {
+              e.target.style.boxShadow = 'none';
+            }}
           >
             <option value="">Sort by Price</option>
             <option value="low">Lowest First</option>
@@ -149,7 +240,7 @@ export default function Menu({ onAddToCart }) {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(214, 127, 81, 0.15)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
@@ -207,10 +298,10 @@ export default function Menu({ onAddToCart }) {
                       <span 
                         className="badge"
                         style={{
-                          backgroundColor: '#f7fafc',
-                          color: '#4a5568',
+                          backgroundColor: '#fdf2f8',
+                          color: '#D67F51',
                           fontWeight: '500',
-                          border: '1px solid #e2e8f0'
+                          border: '1px solid #fed7d7'
                         }}
                       >
                         {dish.cuisine}
@@ -218,10 +309,10 @@ export default function Menu({ onAddToCart }) {
                       <span 
                         className="badge"
                         style={{
-                          backgroundColor: '#f0fff4',
-                          color: '#38a169',
+                          backgroundColor: '#fef5e7',
+                          color: '#D67F51',
                           fontWeight: '500',
-                          border: '1px solid #c6f6d5'
+                          border: '1px solid #f6e05e'
                         }}
                       >
                         {dish.category}
@@ -254,7 +345,7 @@ export default function Menu({ onAddToCart }) {
                         className="fw-bold"
                         style={{ 
                           fontSize: '1.1rem',
-                          color: '#38a169'
+                          color: '#D67F51'
                         }}
                       >
                         KES {dish.price?.toLocaleString()}
@@ -265,28 +356,44 @@ export default function Menu({ onAddToCart }) {
                       variant="outline-success"
                       size="sm"
                       className="w-100"
+                      disabled={addingToCart === dish.id}
                       style={{
                         borderRadius: '8px',
                         fontWeight: '500',
                         fontSize: '0.85rem',
                         padding: '8px 16px',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        borderColor: '#D67F51',
+                        color: '#D67F51'
                       }}
                       onClick={() => handleAddToCart(dish)}
                       onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = '#38a169';
-                        e.target.style.borderColor = '#38a169';
-                        e.target.style.color = 'white';
-                        e.target.style.transform = 'translateY(-1px)';
+                        if (!e.target.disabled) {
+                          e.target.style.backgroundColor = '#D67F51';
+                          e.target.style.borderColor = '#D67F51';
+                          e.target.style.color = 'white';
+                          e.target.style.transform = 'translateY(-1px)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(214, 127, 81, 0.3)';
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = 'transparent';
-                        e.target.style.borderColor = '#38a169';
-                        e.target.style.color = '#38a169';
-                        e.target.style.transform = 'translateY(0)';
+                        if (!e.target.disabled) {
+                          e.target.style.backgroundColor = 'transparent';
+                          e.target.style.borderColor = '#D67F51';
+                          e.target.style.color = '#D67F51';
+                          e.target.style.transform = 'translateY(0)';
+                          e.target.style.boxShadow = 'none';
+                        }
                       }}
                     >
-                      Add to Cart
+                      {addingToCart === dish.id ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Adding...
+                        </>
+                      ) : (
+                        'Add to Cart'
+                      )}
                     </Button>
                   </div>
                 </Card.Body>
@@ -296,7 +403,43 @@ export default function Menu({ onAddToCart }) {
         </Row>
       )}
 
-      {/* Custom Toast Container */}
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        onLoginSuccess={() => setShowLoginModal(false)} 
+      />
+      
+      {/* Floating Cart Button */}
+      {showCartButton && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 1000
+          }}
+        >
+          <Button
+            onClick={() => navigate('/cart')}
+            style={{
+              backgroundColor: '#D67F51',
+              borderColor: '#D67F51',
+              borderRadius: '50px',
+              padding: '12px 24px',
+              fontWeight: '600',
+              fontSize: '16px',
+              boxShadow: '0 4px 20px rgba(214, 127, 81, 0.4)',
+              border: 'none',
+              animation: 'pulse 2s infinite'
+            }}
+            className="d-flex align-items-center gap-2"
+          >
+            🛒 View Cart
+          </Button>
+        </div>
+      )}
+      
       <ToastContainer />
     </Container>
   );
