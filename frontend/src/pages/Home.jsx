@@ -30,6 +30,22 @@ export default function Home() {
               Book a Table
             </Button>
           </div>
+          <Container className="mt-5">
+            <div className="row justify-content-center text-center text-white">
+              <div className="col-4">
+                <h2 className="fw-bold">25+</h2>
+                <p className="text-bold-50">Food Outlets</p>
+              </div>
+              <div className="col-4">
+                <h2 className="fw-bold">100+</h2>
+                <p className="text-bold-50">Menu Items</p>
+              </div>
+              <div className="col-4">
+                <h2 className="fw-bold">5</h2>
+                <p className="text-bold-50">Cuisines</p>
+              </div>
+            </div>
+          </Container>
         </Herosection>
 
         
@@ -55,7 +71,7 @@ export default function Home() {
                         variant="outline-primary"
                         size="sm"
                         className="w-100 mt-3"
-                        onClick={() => navigate('/menu/1')}
+                        onClick={() => navigate('/menu')}
                       >
                         View Menu
                       </Button>
