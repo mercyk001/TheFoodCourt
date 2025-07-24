@@ -13,10 +13,26 @@ export default function Cart({ cartItems, updateQuantity, removeItem, clearCart,
   const [userReservations, setUserReservations] = useState([]);
   const [loadingReservations, setLoadingReservations] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRestoredNotice, setShowRestoredNotice] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, isAuthenticated, checkAuthStatus } = useAuth();
   const { showToast, ToastContainer } = useToast();
+
+  // Check if cart has items that were restored from storage
+  useEffect(() => {
+    const hasOldItems = cartItems.some(item => {
+      const itemAge = Date.now() - (item.addedAt || 0);
+      return itemAge > 5 * 60 * 1000; // Show notice if any item is older than 5 minutes
+    });
+    
+    if (hasOldItems && cartItems.length > 0) {
+      setShowRestoredNotice(true);
+      // Auto-hide the notice after 10 seconds
+      const timer = setTimeout(() => setShowRestoredNotice(false), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [cartItems]);
 
   useEffect(() => {
     // Load user reservations when component mounts if authenticated
@@ -27,6 +43,12 @@ export default function Cart({ cartItems, updateQuantity, removeItem, clearCart,
     // Check if user is returning from booking
     if (searchParams.get('booked') === 'true') {
       showToast('Table booked successfully! You can now place your order.', 'success', 4000);
+      // Force refresh reservations immediately when returning from booking
+      setTimeout(() => {
+        if (isAuthenticated) {
+          fetchUserReservations();
+        }
+      }, 1000);
       // Remove the parameter from URL
       setSearchParams({});
     }
@@ -50,27 +72,51 @@ export default function Cart({ cartItems, updateQuantity, removeItem, clearCart,
   const fetchUserReservations = async () => {
     try {
       setLoadingReservations(true);
+      console.log('Fetching user reservations...');
       const response = await apiService.getCustomerReservations();
       const reservationsData = response.data || response;
       
-      // Filter for active/confirmed reservations (today and future dates)
+      console.log('Raw reservations data:', reservationsData);
+      
+      // Handle nested data structure
+      const reservationsList = Array.isArray(reservationsData) ? reservationsData : (reservationsData.data || []);
+      console.log('Reservations list:', reservationsList);
+      
+      // Filter for active reservations (today and future dates)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      const activeReservations = Array.isArray(reservationsData) 
-        ? reservationsData.filter(reservation => {
-            const reservationDate = new Date(reservation.date);
-            return reservation.status === 'confirmed' && reservationDate >= today;
+      const activeReservations = Array.isArray(reservationsList) 
+        ? reservationsList.filter(reservation => {
+            const reservationDate = new Date(reservation.reservation_time);
+            console.log('Checking reservation:', {
+              id: reservation.id,
+              reservation_time: reservation.reservation_time,
+              status: reservation.status,
+              table_number: reservation.table_number,
+              parsedDate: reservationDate,
+              isDateValid: !isNaN(reservationDate.getTime()),
+              isFutureDate: reservationDate >= today,
+              todayDate: today
+            });
+            // Accept 'confirmed' or 'pending' status
+            const hasValidStatus = reservation.status === 'confirmed' || reservation.status === 'pending';
+            const isFutureDate = reservationDate >= today;
+            console.log('Filter result:', { hasValidStatus, isFutureDate, willInclude: hasValidStatus && isFutureDate });
+            return hasValidStatus && isFutureDate;
           })
         : [];
       
-      // Sort by date and time, most recent first
+      console.log('Filtered active reservations:', activeReservations);
+      
+      // Sort by date and time, earliest first (next upcoming)
       const sortedReservations = activeReservations.sort((a, b) => {
-        const dateA = new Date(`${a.date}T${a.time}`);
-        const dateB = new Date(`${b.date}T${b.time}`);
-        return dateA - dateB; // Earliest first (next upcoming)
+        const dateA = new Date(a.reservation_time);
+        const dateB = new Date(b.reservation_time);
+        return dateA - dateB;
       });
       
+      console.log('Final sorted reservations:', sortedReservations);
       setUserReservations(sortedReservations);
     } catch (error) {
       console.error('Error fetching user reservations:', error);
@@ -135,17 +181,25 @@ export default function Cart({ cartItems, updateQuantity, removeItem, clearCart,
       
       // Get unique restaurants from cart items
       const restaurants = [...new Set(currentItems.map(item => item.restaurant_id).filter(Boolean))];
+      
       if (restaurants.length === 0) {
-        showToast('Unable to determine restaurant for order items', 'error');
-        return;
+        // Try to get restaurant from meal data or other fields
+        const altRestaurants = [...new Set(currentItems.map(item => item.restaurant || item.restaurant_id || item.meal?.restaurant_id).filter(Boolean))];
+        
+        if (altRestaurants.length === 0) {
+          showToast('Unable to determine restaurant for order items', 'error');
+          return;
+        }
+        restaurants.push(...altRestaurants);
       }
+      
       if (restaurants.length > 1) {
         showToast('All items must be from the same restaurant', 'error');
         return;
       }
 
-      // Use the most recent reservation's table
-      const activeReservation = userReservations[0]; // Assuming they're sorted by date
+      // Use the next upcoming reservation
+      const activeReservation = userReservations[0];
 
       // Create order payload
       const orderData = {
@@ -168,8 +222,8 @@ export default function Cart({ cartItems, updateQuantity, removeItem, clearCart,
       
       if (response.table_info) {
         successMessage += ` You have been assigned Table ${response.table_info.table_number}.`;
-      } else if (activeReservation.table) {
-        successMessage += ` Your order will be served at Table ${activeReservation.table.table_number}.`;
+      } else if (activeReservation.table_number) {
+        successMessage += ` Your order will be served at Table ${activeReservation.table_number}.`;
       }
       
       showToast(successMessage, 'success', 5000);
@@ -312,6 +366,28 @@ export default function Cart({ cartItems, updateQuantity, removeItem, clearCart,
       <p className="text-muted ms-5 mb-4">
         {currentItems.length} item{currentItems.length > 1 ? 's' : ''} in your cart
       </p>
+
+      {/* Restored Cart Notice */}
+      {showRestoredNotice && (
+        <Alert 
+          variant="info" 
+          className="mx-5 mb-4 d-flex align-items-center"
+          dismissible
+          onClose={() => setShowRestoredNotice(false)}
+          style={{
+            borderRadius: '12px',
+            border: 'none',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            borderLeft: '4px solid #0d6efd'
+          }}
+        >
+          <BsCheckCircle className="me-2" style={{ color: '#0d6efd' }} />
+          <span>
+            <strong>Cart Restored:</strong> Your previous cart items have been restored. 
+            Items are automatically saved and will expire after 24 hours.
+          </span>
+        </Alert>
+      )}
 
       <Row className="g-4">
         <Col lg={8}>
@@ -473,16 +549,20 @@ export default function Cart({ cartItems, updateQuantity, removeItem, clearCart,
                     </span>
                   </div>
                   <div className="p-3 rounded" style={{ backgroundColor: 'rgba(40, 167, 69, 0.1)' }}>
-                    <div className="fw-medium mb-2">Most Recent Reservation:</div>
+                    <div className="fw-medium mb-2">Next Reservation:</div>
                     <div className="small text-muted">
-                      <div>Date: {new Date(userReservations[0].date).toLocaleDateString()}</div>
-                      <div>Time: {userReservations[0].time}</div>
-                      {userReservations[0].table && (
-                        <div>Table: {userReservations[0].table.table_number}</div>
-                      )}
-                      <div>Guests: {userReservations[0].guests}</div>
+                      <div>Date: {new Date(userReservations[0].reservation_time).toLocaleDateString()}</div>
+                      <div>Time: {new Date(userReservations[0].reservation_time).toLocaleTimeString()}</div>
+                      <div>Table: {userReservations[0].table_number}</div>
+                      <div>Guests: {userReservations[0].members_count}</div>
+                      <div>Status: {userReservations[0].status}</div>
                     </div>
                   </div>
+                  {userReservations.length > 1 && (
+                    <div className="mt-2 text-muted small">
+                      + {userReservations.length - 1} more reservation{userReservations.length > 2 ? 's' : ''}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div>

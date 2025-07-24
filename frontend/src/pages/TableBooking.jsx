@@ -27,12 +27,14 @@ export default function TableBooking() {
   const [searchParams] = useSearchParams();
   const returnToCart = searchParams.get('return') === 'cart';
 
-  // Auto-fill email when user is authenticated
+  // Auto-fill user details when user is authenticated
   useEffect(() => {
-    if (isAuthenticated && user && user.email) {
+    if (isAuthenticated && user) {
       setFormData(prev => ({
         ...prev,
-        email: user.email
+        fullName: user.username || user.name || '',
+        email: user.email || '',
+        phoneNumber: user.phone || user.phone_number || ''
       }));
     }
   }, [isAuthenticated, user]);
@@ -175,7 +177,7 @@ export default function TableBooking() {
         reservation_time: reservationDateTime,
         duration: 120, // Default 2 hours
         members_count: parseInt(formData.guests),
-        status: 'pending'
+        status: 'confirmed' // Auto-confirm reservations for customers
       };
 
       const response = await apiService.createReservation(reservationData);
@@ -234,14 +236,14 @@ export default function TableBooking() {
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <main>
+    <main style={{ padding: '0', margin: '0' }}>
       <Herosection
         title="Reserve a Table"
         subtitle="Book your table up to 30 minutes in advance for a seamless dining experience."
       >
-        <Container className="mt-5">
-          <Row>
-            <Col md={6} className="mb-4">
+        <Container fluid className="mt-5" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 20px' }}>
+          <Row className="justify-content-center g-4">
+            <Col xl={5} lg={6} md={12} className="mb-4">
               <Card 
                 className="shadow-sm"
                 style={{
@@ -312,47 +314,73 @@ export default function TableBooking() {
                         <Form.Label>Full Name *</Form.Label>
                         <Form.Control 
                           type="text" 
-                          placeholder="Enter your name" 
+                          placeholder={isAuthenticated && user ? "Auto-filled from your account" : "Enter your name"}
                           required 
                           value={formData.fullName}
                           onChange={(e) => handleInputChange('fullName', e.target.value)}
+                          readOnly={isAuthenticated && user}
+                          disabled={isAuthenticated && user}
                           style={{
                             borderRadius: '8px',
                             borderColor: '#e2e8f0',
-                            padding: '10px 12px'
+                            padding: '10px 12px',
+                            backgroundColor: (isAuthenticated && user) ? '#f8f9fa' : 'white',
+                            cursor: (isAuthenticated && user) ? 'not-allowed' : 'text'
                           }}
                           onFocus={(e) => {
-                            e.target.style.borderColor = '#D67F51';
-                            e.target.style.boxShadow = '0 0 0 0.2rem rgba(214, 127, 81, 0.25)';
+                            if (!(isAuthenticated && user)) {
+                              e.target.style.borderColor = '#D67F51';
+                              e.target.style.boxShadow = '0 0 0 0.2rem rgba(214, 127, 81, 0.25)';
+                            }
                           }}
                           onBlur={(e) => {
-                            e.target.style.borderColor = '#e2e8f0';
-                            e.target.style.boxShadow = 'none';
+                            if (!(isAuthenticated && user)) {
+                              e.target.style.borderColor = '#e2e8f0';
+                              e.target.style.boxShadow = 'none';
+                            }
                           }}
                         />
+                        {isAuthenticated && user && (
+                          <Form.Text className="text-muted">
+                            <small><i className="bi bi-lock me-1"></i>Name auto-filled from your account</small>
+                          </Form.Text>
+                        )}
                       </Col>
                       <Col sm={6} className="mb-3">
                         <Form.Label>Phone Number *</Form.Label>
                         <Form.Control 
                           type="tel" 
-                          placeholder="+254 700 000 000" 
+                          placeholder={isAuthenticated && user ? "Auto-filled from your account" : "+254 700 000 000"}
                           required 
                           value={formData.phoneNumber}
                           onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                          readOnly={isAuthenticated && user && (user.phone || user.phone_number)}
+                          disabled={isAuthenticated && user && (user.phone || user.phone_number)}
                           style={{
                             borderRadius: '8px',
                             borderColor: '#e2e8f0',
-                            padding: '10px 12px'
+                            padding: '10px 12px',
+                            backgroundColor: (isAuthenticated && user && (user.phone || user.phone_number)) ? '#f8f9fa' : 'white',
+                            cursor: (isAuthenticated && user && (user.phone || user.phone_number)) ? 'not-allowed' : 'text'
                           }}
                           onFocus={(e) => {
-                            e.target.style.borderColor = '#D67F51';
-                            e.target.style.boxShadow = '0 0 0 0.2rem rgba(214, 127, 81, 0.25)';
+                            if (!(isAuthenticated && user && (user.phone || user.phone_number))) {
+                              e.target.style.borderColor = '#D67F51';
+                              e.target.style.boxShadow = '0 0 0 0.2rem rgba(214, 127, 81, 0.25)';
+                            }
                           }}
                           onBlur={(e) => {
-                            e.target.style.borderColor = '#e2e8f0';
-                            e.target.style.boxShadow = 'none';
+                            if (!(isAuthenticated && user && (user.phone || user.phone_number))) {
+                              e.target.style.borderColor = '#e2e8f0';
+                              e.target.style.boxShadow = 'none';
+                            }
                           }}
                         />
+                        {isAuthenticated && user && (user.phone || user.phone_number) && (
+                          <Form.Text className="text-muted">
+                            <small><i className="bi bi-lock me-1"></i>Phone auto-filled from your account</small>
+                          </Form.Text>
+                        )}
                       </Col>
                     </Row>
 
@@ -543,7 +571,7 @@ export default function TableBooking() {
               </Card>
             </Col>
 
-            <Col md={6} className="mb-4">
+            <Col xl={7} lg={6} md={12} className="mb-4">
               <Card 
                 className="shadow-sm h-100"
                 style={{
@@ -582,10 +610,23 @@ export default function TableBooking() {
                       <p className="text-center mb-4">
                         <strong>{availableTables.length}</strong> table{availableTables.length !== 1 ? 's' : ''} available for <strong>{formData.guests}</strong> guest{formData.guests !== '1' ? 's' : ''}
                         {formData.time && ` at ${formData.time}`}
+                        {availableTables.length > 4 && (
+                          <small className="d-block text-muted mt-1">
+                            <i className="bi bi-arrow-down-up me-1"></i>
+                            Scroll to see all tables
+                          </small>
+                        )}
                       </p>
-                      <Row className="g-3">
-                        {availableTables.map(table => (
-                          <Col sm={6} key={table.id}>
+                      <div 
+                        className="overflow-auto custom-scrollbar"
+                        style={{
+                          maxHeight: availableTables.length > 4 ? '400px' : 'auto',
+                          paddingRight: availableTables.length > 4 ? '8px' : '0'
+                        }}
+                      >
+                        <Row className="g-3">
+                          {availableTables.map(table => (
+                          <Col lg={6} md={6} sm={6} xs={12} key={table.id}>
                             <Card 
                               className={`text-center cursor-pointer ${selectedTable?.id === table.id ? 'border-2' : ''}`}
                               style={{
@@ -686,7 +727,8 @@ export default function TableBooking() {
                             </Card>
                           </Col>
                         ))}
-                      </Row>
+                        </Row>
+                      </div>
                       {selectedTable && (
                         <Alert 
                           variant="success" 

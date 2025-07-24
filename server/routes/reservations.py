@@ -61,7 +61,7 @@ def create_reservation():
 
         existing_reservations = Reservation.query.filter(
             Reservation.table_id == table_id,
-            Reservation.status != 'cancelled'
+            Reservation.status.notin_(['cancelled', 'free'])
         ).all()
 
         for r in existing_reservations:

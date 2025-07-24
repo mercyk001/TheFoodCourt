@@ -87,10 +87,10 @@ export default function Orders() {
       case 'accepted':
         return 'Accepted';
       case 'ready':
-        return 'Ready for Pickup';
+        return 'Ready';
       case 'on_way':
         return 'On the way';
-      case 'delivered':
+      case 'Served':
         return 'Delivered';
       case 'completed':
         return 'Completed';
@@ -123,12 +123,31 @@ export default function Orders() {
     }
   };
 
+  const getReservationStatusText = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'Pending';
+      case 'confirmed':
+        return 'Confirmed';
+      case 'free':
+        return 'Completed';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'rejected':
+        return 'Rejected';
+      default:
+        return status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown';
+    }
+  };
+
   const getReservationStatusIcon = (status) => {
     switch (status) {
       case 'pending':
         return <Clock className="text-warning" size={20} />;
       case 'confirmed':
         return <CheckCircle className="text-success" size={20} />;
+      case 'free':
+        return <CheckCircle className="text-info" size={20} />;
       case 'cancelled':
       case 'rejected':
         return <XCircle className="text-danger" size={20} />;
@@ -143,6 +162,8 @@ export default function Orders() {
         return 'badge bg-warning text-dark';
       case 'confirmed':
         return 'badge bg-success text-white';
+      case 'free':
+        return 'badge bg-info text-white';
       case 'cancelled':
       case 'rejected':
         return 'badge bg-danger text-white';
@@ -164,6 +185,7 @@ export default function Orders() {
     if (reservationFilter === 'all') return true;
     if (reservationFilter === 'pending') return reservation.status === 'pending';
     if (reservationFilter === 'confirmed') return reservation.status === 'confirmed';
+    if (reservationFilter === 'completed') return reservation.status === 'free';
     if (reservationFilter === 'cancelled') return ['cancelled', 'rejected'].includes(reservation.status);
     return true;
   });
@@ -387,6 +409,7 @@ export default function Orders() {
                   { key: 'all', label: 'All Reservations', count: reservations.length },
                   { key: 'pending', label: 'Pending', count: reservations.filter(r => r.status === 'pending').length },
                   { key: 'confirmed', label: 'Confirmed', count: reservations.filter(r => r.status === 'confirmed').length },
+                  { key: 'completed', label: 'Completed', count: reservations.filter(r => r.status === 'free').length },
                   { key: 'cancelled', label: 'Cancelled', count: reservations.filter(r => ['cancelled', 'rejected'].includes(r.status)).length }
                 ].map(tab => (
                   <button
@@ -440,7 +463,7 @@ export default function Orders() {
                           <div className="d-flex align-items-center justify-content-between mb-3">
                             <h5 className="card-title mb-0 fw-bold">Table {reservation.table_number}</h5>
                             <span className={getReservationStatusBadgeClass(reservation.status)}>
-                              {reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1)}
+                              {getReservationStatusText(reservation.status)}
                             </span>
                           </div>
 
@@ -482,6 +505,9 @@ export default function Orders() {
                             )}
                             {reservation.status === 'confirmed' && (
                               <small className="text-success">Ready to dine!</small>
+                            )}
+                            {reservation.status === 'free' && (
+                              <small className="text-info">Order completed</small>
                             )}
                           </div>
                         </div>

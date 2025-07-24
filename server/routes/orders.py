@@ -187,9 +187,13 @@ def create_order():
         for item in items:
             meal_id = item.get('meal_id')
             if meal_id:
-                menu_item = Menu.query.filter_by(meal_id=meal_id).first()
-                if menu_item and menu_item.restaurant_id != restaurant_id:
-                    return jsonify({"error": "All items must be from the same restaurant"}), 400
+                # Check if this specific meal exists in this specific restaurant's menu
+                menu_item = Menu.query.filter_by(
+                    meal_id=meal_id, 
+                    restaurant_id=restaurant_id
+                ).first()
+                if not menu_item:
+                    return jsonify({"error": f"Meal ID {meal_id} is not available at this restaurant"}), 400
 
         # Handle table/reservation logic
         final_reservation_id = None
@@ -338,6 +342,15 @@ def update_order_status(order_id):
         
         # Update order status
         order.order_status = new_status.lower()
+        
+        # If order is marked as completed, set the associated reservation status to 'free'
+        if new_status.lower() in ['completed', 'served']:
+            if order.reservation_id:
+                reservation = Reservation.query.get(order.reservation_id)
+                if reservation:
+                    reservation.status = 'free'
+                    print(f"DEBUG: Setting reservation {reservation.id} status to 'free' for completed order {order_id}")
+        
         db.session.commit()
         
         return jsonify({

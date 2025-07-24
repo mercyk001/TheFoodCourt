@@ -77,7 +77,7 @@ def is_table_available_at_time(table_id, date, time_slot, duration=120):
         requested_datetime = datetime.strptime(f"{date} {time_slot}", "%Y-%m-%d %H:%M")
         end_datetime = requested_datetime + timedelta(minutes=duration)
         
-        # Get all confirmed reservations for this table on this date
+        # Get all reservations for this table on this date that are not 'free' or 'cancelled'
         existing_reservations = Reservation.query.filter(
             Reservation.table_id == table_id,
             Reservation.status.in_(['confirmed', 'pending']),
