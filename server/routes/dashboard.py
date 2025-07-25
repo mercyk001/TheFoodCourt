@@ -219,38 +219,59 @@ def get_order_stats():
         today_start = datetime.combine(today, datetime.min.time())
         today_end = datetime.combine(today, datetime.max.time())
         
-        # Get all confirmed orders
-        all_orders = Order.query.filter(Order.is_confirmed == True).all()
+        # Get all confirmed orders for owner's restaurants
+        all_orders = Order.query.filter(
+            Order.is_confirmed == True,
+            Order.restaurant_id.in_(restaurant_ids)
+        ).all()
         
         todays_orders = 0
         pending_orders = 0
         total_revenue = 0
         
+        print(f"DEBUG: Processing {len(all_orders)} orders for revenue calculation")
+        
         for order in all_orders:
-            # Check if order has items from owner's restaurants
-            order_meals = OrderMeal.query.filter_by(order_id=order.id).all()
+            print(f"DEBUG: Processing order {order.id}, status: {order.order_status}, time: {order.order_time}")
             
-            has_owner_items = False
-            order_revenue = 0
+            # Check if order is from today using order_time
+            order_is_today = False
+            if order.order_time:
+                order_is_today = today_start <= order.order_time <= today_end
+                print(f"DEBUG: Order {order.id} is today: {order_is_today}")
+            elif order.order_date:
+                # Fallback to order_date if order_time is not available
+                order_date = order.order_date
+                if isinstance(order_date, str):
+                    order_date = datetime.fromisoformat(order_date.replace('Z', '+00:00')).date()
+                elif isinstance(order_date, datetime):
+                    order_date = order_date.date()
+                order_is_today = order_date == today
             
-            for order_meal in order_meals:
-                meal = Meal.query.get(order_meal.meal_id)
-                if meal:
-                    menu_item = Menu.query.filter_by(meal_id=meal.id).first()
-                    if menu_item and menu_item.restaurant_id in restaurant_ids:
-                        has_owner_items = True
-                        order_revenue += order_meal.quantity * menu_item.price
+            if order_is_today:
+                todays_orders += 1
+                print(f"DEBUG: Today's orders count: {todays_orders}")
             
-            if has_owner_items:
+            # Check if order is pending
+            if order.order_status and order.order_status.lower() in ['pending', 'received', 'accepted']:
+                pending_orders += 1
+                print(f"DEBUG: Pending orders count: {pending_orders}")
+            
+            # Calculate revenue from OrderMeal table for completed orders only
+            if order.order_status and order.order_status.lower() in ['completed', 'delivered', 'served']:
+                order_meals = OrderMeal.query.filter_by(order_id=order.id).all()
+                print(f"DEBUG: Order {order.id} is completed, found {len(order_meals)} order meals")
+                
+                order_revenue = 0
+                for order_meal in order_meals:
+                    # Use the sub_total directly from OrderMeal table
+                    order_revenue += order_meal.sub_total
+                    print(f"DEBUG: Added {order_meal.sub_total} to revenue")
+                
                 total_revenue += order_revenue
-                
-                # Check if order is from today
-                if order.order_time and today_start <= order.order_time <= today_end:
-                    todays_orders += 1
-                
-                # Check if order is pending
-                if order.order_status and order.order_status.lower() in ['pending', 'received']:
-                    pending_orders += 1
+                print(f"DEBUG: Total revenue now: {total_revenue}")
+        
+        print(f"DEBUG: Final stats - Today: {todays_orders}, Pending: {pending_orders}, Revenue: {total_revenue}")
         
         return jsonify({
             "todaysOrders": todays_orders,

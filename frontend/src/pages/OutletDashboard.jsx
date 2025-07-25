@@ -10,6 +10,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 export default function OutletDashboard() {
   const [activeTab, setActiveTab] = useState("orders");
+  const [orderFilter, setOrderFilter] = useState("today"); // Add order filter state
   const [dashboardStats, setDashboardStats] = useState({
     todaysOrders: 0,
     pendingOrders: 0,
@@ -42,17 +43,25 @@ export default function OutletDashboard() {
       const response = await apiService.getDashboardStats();
       console.log('Dashboard stats response:', response);
       
+      // Handle the response data more carefully
+      let statsData = response;
+      if (response.data) {
+        statsData = response.data;
+      }
+      
+      console.log('Stats data after processing:', statsData);
+      
       // The response should now be the combined data object directly
       const stats = {
-        todaysOrders: response.todaysOrders || 0,
-        pendingOrders: response.pendingOrders || 0,
-        totalRevenue: response.totalRevenue || 0,
-        activeOutlets: response.activeOutlets || 0,
-        totalOutlets: response.totalOutlets || 0,
-        tableBookings: response.tableBookings || 0
+        todaysOrders: statsData.todaysOrders || 0,
+        pendingOrders: statsData.pendingOrders || 0,
+        totalRevenue: statsData.totalRevenue || 0,
+        activeOutlets: statsData.activeOutlets || 0,
+        totalOutlets: statsData.totalOutlets || 0,
+        tableBookings: statsData.tableBookings || 0
       };
       
-      console.log('Processed stats:', stats);
+      console.log('Final processed stats:', stats);
       setDashboardStats(stats);
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
@@ -105,7 +114,7 @@ export default function OutletDashboard() {
         <div className="col-md-6 col-lg-3">
           <StatsCard 
             title="Total Revenue" 
-            value={loading ? "..." : `KES ${(dashboardStats.totalRevenue || 0).toLocaleString()}`} 
+            value={loading ? "..." : `KES ${Number(dashboardStats.totalRevenue || 0).toLocaleString()}`} 
             subtitle="From completed orders" 
             icon={<DollarSign size={20} />} 
           />
@@ -201,7 +210,34 @@ export default function OutletDashboard() {
       <div className="tab-content pt-3" id="dashboardTabsContent">
         {activeTab === "orders" && (
           <div className="p-3" style={{ backgroundColor: "white", border: "0px solid #dee2e6", borderTop: "none", borderRadius: "0 0 0.375rem 0.375rem" }}>
-            <OrdersTable />
+            {/* Orders Filter */}
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="mb-0">Orders Management</h5>
+              <div className="btn-group" role="group" aria-label="Order filters">
+                <button 
+                  type="button" 
+                  className={`btn btn-sm ${orderFilter === 'today' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  onClick={() => setOrderFilter('today')}
+                >
+                  Today's Orders
+                </button>
+                <button 
+                  type="button" 
+                  className={`btn btn-sm ${orderFilter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  onClick={() => setOrderFilter('all')}
+                >
+                  All Orders
+                </button>
+                <button 
+                  type="button" 
+                  className={`btn btn-sm ${orderFilter === 'pending' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  onClick={() => setOrderFilter('pending')}
+                >
+                  Pending Only
+                </button>
+              </div>
+            </div>
+            <OrdersTable filter={orderFilter} />
           </div>
         )}
         {activeTab === "bookings" && (

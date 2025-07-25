@@ -60,7 +60,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
   );
 };
 
-export const OrdersTable = () => {
+export const OrdersTable = ({ filter = 'today' }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -73,7 +73,7 @@ export const OrdersTable = () => {
     if (user && user.role === 'owner') {
       loadOrders();
     }
-  }, [user]);
+  }, [user, filter]); // Add filter as dependency
 
   const loadOrders = async () => {
     try {
@@ -97,6 +97,7 @@ export const OrdersTable = () => {
       }
       
       console.log('Order data:', orderData); // Debug log
+      console.log('Sample order:', orderData[0]); // Debug first order
       setOrders(Array.isArray(orderData) ? orderData : []);
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -180,6 +181,43 @@ export const OrdersTable = () => {
     }
   };
 
+  // Filter orders based on the filter prop
+  const getFilteredOrders = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return orders.filter(order => {
+      // Try to get order date from multiple possible fields, prioritizing order_time
+      let orderDate = null;
+      
+      if (order.order_time) {
+        orderDate = new Date(order.order_time);
+      } else if (order.order_date) {
+        orderDate = new Date(order.order_date);
+      } else if (order.created_at) {
+        orderDate = new Date(order.created_at);
+      }
+      
+      // If we have a valid date, normalize it for comparison
+      if (orderDate && !isNaN(orderDate.getTime())) {
+        orderDate.setHours(0, 0, 0, 0);
+      }
+      
+      switch (filter) {
+        case 'today':
+          return orderDate && orderDate.getTime() === today.getTime();
+        case 'pending':
+          const status = (order.status || order.order_status || '').toLowerCase();
+          return ['pending', 'received', 'accepted'].includes(status);
+        case 'all':
+        default:
+          return true;
+      }
+    });
+  };
+
+  const filteredOrders = getFilteredOrders();
+
   if (loading) {
     return (
       <div className="card p-4 shadow-sm">
@@ -208,7 +246,16 @@ export const OrdersTable = () => {
   return (
     <div className="card p-4 shadow-sm">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h5 className="mb-0 fw-bold">Recent Orders</h5>
+        <div>
+          <h5 className="mb-0 fw-bold">
+            {filter === 'today' ? "Today's Orders" : 
+             filter === 'pending' ? "Pending Orders" : 
+             "All Orders"}
+          </h5>
+          <small className="text-muted">
+            {filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'} found
+          </small>
+        </div>
         <button 
           className="btn btn-outline-primary btn-sm"
           onClick={loadOrders}
@@ -218,7 +265,7 @@ export const OrdersTable = () => {
         </button>
       </div>
       
-      {orders.length > 0 ? (
+      {filteredOrders.length > 0 ? (
         <div className="table-responsive">
           <table className="table table-hover">
             <thead style={{ backgroundColor: "#FFFBF7" }}>
@@ -232,7 +279,7 @@ export const OrdersTable = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <OrderRow 
                   key={order.id} 
                   {...order} 
@@ -249,7 +296,9 @@ export const OrdersTable = () => {
           <AlertTriangle size={48} className="text-muted mb-3" />
           <h6 className="text-muted">No Orders Found</h6>
           <p className="text-muted small">
-            No orders have been placed for your restaurants yet.
+            {filter === 'today' ? 'No orders have been placed today.' : 
+             filter === 'pending' ? 'No pending orders at the moment.' :
+             'No orders have been placed for your restaurants yet.'}
           </p>
         </div>
       )}
