@@ -100,10 +100,10 @@ function AppContent() {
   // Clear cart when user logs out
   useEffect(() => {
     if (!user && cartItems.length > 0) {
-      // User logged out, clear cart for security/privacy
+      
       console.log(`Clearing cart with ${cartItems.length} items due to user logout`);
       setCartItems([]);
-      clearCartFromStorage(); // Clear both general and any user-specific carts
+      clearCartFromStorage(); 
     }
   }, [user, cartItems.length]);
 
@@ -113,7 +113,9 @@ function AppContent() {
 
   const handleAddToCart = (meal) => {
     const existing = cartItems.find(item => item.id === meal.id);
+    
     if (existing) {
+     
       setCartItems(cartItems.map(item =>
         item.id === meal.id
           ? { ...item, quantity: item.quantity + 1, updatedAt: Date.now() }
@@ -124,16 +126,16 @@ function AppContent() {
         ...cartItems,
         {
           id: meal.id,
-          meal_id: meal.meal_id, // Include meal_id for backend compatibility
+          meal_id: meal.meal_id, 
           name: meal.name,
           quantity: 1,
           price: meal.price,
           description: meal.description,
           restaurant: meal.restaurant,
-          restaurant_id: meal.restaurant_id, // Include restaurant_id
-          image: meal.image || '/placeholder.jpg',
-          addedAt: Date.now(), // Track when item was added
-          updatedAt: Date.now() // Track last update
+          restaurant_id: meal.restaurant_id, 
+          image: meal.image_url || '/placeholder.jpg',
+          addedAt: Date.now(), 
+          updatedAt: Date.now() 
         },
       ]);
     }

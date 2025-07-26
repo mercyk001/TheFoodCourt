@@ -51,12 +51,12 @@ export default function Navbar({ cartCount = 0 }) {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-      <div className="container-fluid px-3">
+      <div className="container-fluid px-2">
         <Link className="navbar-brand fw-bold text-danger d-flex align-items-center gap-2" to="/">
           <img 
             src="/logo.png" 
             alt="Nextgen Food Court Logo" 
-            style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+            style={{ width: '40px', height: '40px', objectFit: 'contain' }}
           />
           Nextgen Food Court
         </Link>
@@ -73,28 +73,16 @@ export default function Navbar({ cartCount = 0 }) {
             {(!user || user.userType !== 'restaurant') && (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/menu">Menu</Link>
+                  <Link className="nav-link navlink-primary" to="/menu">Menu</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/tablebooking">Book Table</Link>
+                  <Link className="nav-link navlink-primary" to="/tablebooking">Book Table</Link>
                 </li>
                 <li className="nav-item position-relative">
                   <Link 
-                    className="nav-link d-flex align-items-center position-relative" 
+                    className="nav-link navlink-primary d-flex align-items-center position-relative" 
                     to="/cart"
-                    style={{
-                      transition: 'all 0.2s ease',
-                      borderRadius: '8px',
-                      padding: '8px 12px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = 'rgba(214, 127, 81, 0.1)';
-                      e.target.style.color = '#D67F51';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = 'transparent';
-                      e.target.style.color = '';
-                    }}
+
                   >
                     🛒 Cart
                     {cartCount > 0 && (
@@ -124,12 +112,12 @@ export default function Navbar({ cartCount = 0 }) {
             )}
             {user && user.userType === 'customer' && (
               <li className="nav-item">
-                <Link className="nav-link" to="/orders">Orders</Link>
+                <Link className="nav-link navlink-primary" to="/orders">Orders</Link>
               </li>
             )}
             {user && user.userType === 'restaurant' && (
               <li className="nav-item">
-                <Link className="nav-link" to="/outlet-dashboard">Dashboard</Link>
+                <Link className="nav-link navlink-primary" to="/outlet-dashboard">Dashboard</Link>
               </li>
             )}
             <li className="nav-item ms-3">

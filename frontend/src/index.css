@@ -12,7 +12,7 @@
   --bs-primary-border-subtle: #e6c4a8 !important;
 }
 
-/* Override Bootstrap primary button styles */
+
 .btn-primary {
   background-color: #D67F51 !important;
   border-color: #D67F51 !important;
@@ -32,6 +32,23 @@
 .btn-primary:active, .btn-primary.active {
   background-color: #b15f38 !important;
   border-color: #b15f38 !important;
+}
+.navlink-primary {
+  
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.navlink-primary:hover {
+  background-color: rgba(214, 127, 81, 0.1) !important;
+  color: #D67F51 !important;
+}
+
+
+
+.navlink:active, .navlink.active {
+  color: #D67F51 !important;
 }
 
 .btn-outline-primary {

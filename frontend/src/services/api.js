@@ -213,7 +213,7 @@ class ApiService {
       const response = await this.getUserProfile();
       return { isAuthenticated: true, user: response.data };
     } catch (error) {
-      // Don't log 401 errors as they're expected when not authenticated
+      
       if (!error.message.includes('401') && !error.message.includes('Unauthorized')) {
         console.warn('Auth check error:', error.message);
       }
@@ -231,8 +231,7 @@ class ApiService {
     } catch (error) {
       console.warn('Backend logout failed:', error.message);
     } finally {
-      // HTTP-only cookies are cleared by the backend logout endpoint
-      // No manual token cleanup needed
+      
     }
   }
 

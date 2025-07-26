@@ -49,7 +49,15 @@ export default function Orders() {
   const fetchReservations = async () => {
     try {
       const response = await apiService.getCustomerReservations();
-      const reservationData = response.data || response;
+      console.log('Reservations API response:', response); 
+      
+      // Handle nested data structure
+      let reservationData = response.data || response;
+      if (reservationData.data && Array.isArray(reservationData.data)) {
+        reservationData = reservationData.data;
+      }
+      
+      console.log('Processed reservation data:', reservationData); 
       setReservations(Array.isArray(reservationData) ? reservationData : []);
     } catch (error) {
       console.error('Error fetching reservations:', error);
