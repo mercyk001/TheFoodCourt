@@ -34,40 +34,89 @@ TheFoodCourt is a full-stack web application for managing a digital food court e
 ## Project Structure
 ```
 TheFoodCourt/
-├── server/
-│   ├── app.py
-│   ├── models.py
-│   ├── routes/
-│   ├── migrations/
-│   ├── ...
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   ├── ...
-├── instance/
-│   └── foodcourt.db
+├── frontend
+│   ├── db.json
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── public
+│   │   ├── favicon.ico
+│   │   ├── index.html
+│   │   ├── logo192.png
+│   │   ├── logo512.png
+│   │   ├── logo.png
+│   │   ├── manifest.json
+│   │   └── robots.txt
+│   ├── README.md
+│   └── src
+│       ├── App.css
+│       ├── App.js
+│       ├── App.test.js
+│       ├── components
+│       ├── contexts
+│       ├── index.css
+│       ├── index.js
+│       ├── logo.svg
+│       ├── pages
+│       ├── reportWebVitals.js
+│       ├── services
+│       └── setupTests.js
+├── image-1.png
+├── image.png
+├── instance
+├── package-lock.json
 ├── Pipfile
+├── Pipfile.lock
 ├── README.md
-```
+├── server
+│   ├── app.py
+│   ├── instance
+│   ├── migrations
+│   │   ├── alembic.ini
+│   │   ├── env.py
+│   │   ├── README
+│   │   ├── script.py.mako
+│   │   └── versions
+│   ├── models.py
+│   ├── reservation_utils.py
+│   ├── routes
+│   │   ├── dashboard.py
+│   │   ├── meals.py
+│   │   ├── menus.py
+│   │   ├── orders.py
+│   │   ├── reservations.py
+│   │   ├── restaurants.py
+│   │   ├── tables.py
+│   │   └── users.py
+│   ├── seed.py
+│   ├── test_orders.py
+│   ├── test_stats.py
+│   └── update_db_schema.py
+
 
 ## Setup Instructions
 
 ### Backend
-1. Create and activate a virtual environment:
+1. Install dependencies and create a virtual environment using pipenv:
    ```bash
-   python -m venv venv
-   source venv/bin/activate
+   pipenv install --dev
    ```
-2. Install dependencies:
+2. Activate the pipenv shell:
    ```bash
-   pip install -r requirements.txt
+   pipenv shell
    ```
-3. Run database migrations:
+3. Set the FLASK_APP environment variable (if not already set):
+   ```bash
+   export FLASK_APP=server/app.py
+   ```
+4. Run database migrations:
    ```bash
    flask db upgrade
    ```
-4. Start the backend server:
+5. Seed the database with initial data:
+   ```bash
+   python server/seed.py
+   ```
+6. Start the backend server:
    ```bash
    python server/app.py
    ```
@@ -103,5 +152,4 @@ TheFoodCourt/
 - Use relative URLs in the frontend for API requests to leverage the proxy and avoid CORS issues.
 - JWT tokens are used for authentication; they are stored in localStorage after login.
 - Database migrations are managed with Flask-Migrate/Alembic.
-
 
