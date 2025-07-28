@@ -17,7 +17,7 @@ export default function Home() {
         >
           <div className="d-flex justify-content-center gap-3 flex-wrap">
             <Button variant="outline-primary" size="lg" onClick={() => navigate('/menu')}>
-              Browse  Menu
+              Explore Menus
             </Button>
             <Button variant="outline-primary" size="lg" onClick={() => navigate('/tablebooking')}>
               Book a Table

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, ChevronDown, LogOut, Edit } from 'lucide-react';
+import { Home, UtensilsCrossed, CalendarCheck, ShoppingCart, BarChart3, User, ChevronDown, LogOut, Edit } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { ProfileModal } from './ProfileModal';
 import { useAuth } from '../contexts/AuthContext';
@@ -73,10 +73,14 @@ export default function Navbar({ cartCount = 0 }) {
             {(!user || user.userType !== 'restaurant') && (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link navlink-primary" to="/menu">Menu</Link>
+                  <Link className="nav-link navlink-primary align-items-center gap-3" to="/menu">
+                    <UtensilsCrossed size={20} />  Menu
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link navlink-primary" to="/tablebooking">Book Table</Link>
+                  <Link className="nav-link navlink-primary align-items-center gap-3" to="/tablebooking">
+                    <CalendarCheck size={20} />  Book Table
+                  </Link>
                 </li>
                 <li className="nav-item position-relative">
                   <Link 
@@ -118,6 +122,7 @@ export default function Navbar({ cartCount = 0 }) {
             {user && user.userType === 'restaurant' && (
               <li className="nav-item">
                 <Link className="nav-link navlink-primary" to="/outlet-dashboard">Dashboard</Link>
+                <BarChart3 size={18} />
               </li>
             )}
             <li className="nav-item ms-3">

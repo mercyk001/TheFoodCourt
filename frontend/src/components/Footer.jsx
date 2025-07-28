@@ -19,7 +19,6 @@ export default function Footer() {
             <h6 className="fw-bold">Quick Links</h6>
             <ul className="list-unstyled">
               <li><Link to="/" className="text-light text-decoration-none">Home</Link></li>
-              <li><Link to="/restaurant" className="text-light text-decoration-none">Restaurants</Link></li>
               <li><Link to="/tablebooking" className="text-light text-decoration-none">Book a Table</Link></li>
               <li><Link to="/cart" className="text-light text-decoration-none">Cart</Link></li>
             </ul>
