@@ -28,7 +28,8 @@ TheFoodCourt is a full-stack web application for managing a digital food court e
 
 - View the ERD online: [dbdiagram.io link](https://dbdiagram.io/d/Copy-of-Untitled-Diagram-68774540f413ba35081948c9)
 
-![ERD Diagram](image.png)
+![ERD Diagram] <img width="1322" height="825" alt="Screenshot from 2025-07-28 13-49-06" src="https://github.com/user-attachments/assets/f0b60d8d-205e-4019-b270-abd6481814cc" />
+
 
 ## Project Structure
 ```
