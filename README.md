@@ -92,6 +92,8 @@ TheFoodCourt/
 │   ├── test_stats.py
 │   └── update_db_schema.py
 
+```
+
 
 ## Setup Instructions
 
