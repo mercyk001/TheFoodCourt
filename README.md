@@ -104,8 +104,4 @@ TheFoodCourt/
 - JWT tokens are used for authentication; they are stored in localStorage after login.
 - Database migrations are managed with Flask-Migrate/Alembic.
 
-## Contributing
-Pull requests are welcome! Please open an issue first to discuss major changes.
 
-## License
-MIT
