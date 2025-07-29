@@ -37,7 +37,7 @@ migrate = Migrate(app, db)
 
 # Configure CORS with more explicit settings
 CORS(app, 
-         origins=['https://the-food-court-lime.vercel.app/'],
+         origins=['https://the-food-court-lime.vercel.app'],
          supports_credentials=True,
          allow_headers=['Content-Type', 'Authorization', 'Cookie'],
          expose_headers=['Set-Cookie'],
