@@ -23,7 +23,7 @@ app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 app.config["JWT_COOKIE_SECURE"] = True # Set to True in production with HTTPS
 app.config["JWT_COOKIE_CSRF_PROTECT"] = False  
 app.config["JWT_COOKIE_SAMESITE"] = "None"
-app.config["JWT_COOKIE_DOMAIN"] = "None"
+app.config["JWT_COOKIE_DOMAIN"] = None
 
 # Disable automatic trailing slash redirects to prevent CORS preflight issues
 app.url_map.strict_slashes = False
@@ -68,16 +68,6 @@ def index():
 def test():
     return jsonify({"message": "CORS test successful", "method": request.method})
 
-# Manual CORS preflight handler for all routes
-@app.before_request
-def handle_preflight():
-    if request.method == "OPTIONS":
-        response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", request.headers.get('Origin', '*'))
-        response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization,Cookie")
-        response.headers.add('Access-Control-Allow-Methods', "GET,PUT,POST,DELETE,PATCH,OPTIONS")
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response
 
 if __name__ == '__main__':
     app.run(debug=True, host ="0.0.0.0", port=5555)
