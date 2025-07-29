@@ -37,7 +37,7 @@ migrate = Migrate(app, db)
 
 # Configure CORS with more explicit settings
 CORS(app, 
-         origins=['http://localhost:3000', 'http://localhost:5555'],
+         origins=['http://localhost:3000', 'https://thefoodcourt-5.onrender.com'],
          supports_credentials=True,
          allow_headers=['Content-Type', 'Authorization', 'Cookie'],
          expose_headers=['Set-Cookie'],
