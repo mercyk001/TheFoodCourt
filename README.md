@@ -96,3 +96,56 @@ TheFoodCourt/
 
 
 ## Setup Instructions
+
+### Backend
+1. Install dependencies and create a virtual environment using pipenv:
+   ```bash
+   pipenv install --dev
+   ```
+2. Activate the pipenv shell:
+   ```bash
+   pipenv shell
+   ```
+3. Set the FLASK_APP environment variable (if not already set):
+   ```bash
+   export FLASK_APP=server/app.py
+   ```
+4. Run database migrations:
+   ```bash
+   flask db upgrade
+   ```
+5. Seed the database with initial data:
+   ```bash
+   python server/seed.py
+   ```
+6. Start the backend server:
+   ```bash
+   python server/app.py
+   ```
+   The backend runs on `http://localhost:5555` by default.
+
+### Frontend
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the frontend development server:
+   ```bash
+   npm start
+   ```
+   The frontend runs on `http://localhost:3000` by default.
+
+## API Endpoints (Sample)
+- `/users/register/customer` - Register a new customer
+- `/users/register/owner` - Register a new owner and restaurant
+- `/users/login/customer` - Customer login
+- `/users/login/owner` - Owner login
+- `/restaurants` - List all restaurants
+- `/menus` - List all menus
+- `/meals` - List all meals
+- `/reservations` - Make/view reservations
+- `/orders` - Place/view orders
