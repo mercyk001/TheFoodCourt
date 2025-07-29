@@ -11,3 +11,5 @@ TheFoodCourt is a full-stack web application for managing a digital food court e
 - Create and manage menus for each restaurant
 - View reservations made by customers for their restaurants
 - View orders made for their restaurants (including meals ordered)
+
+### Customer Capabilities
