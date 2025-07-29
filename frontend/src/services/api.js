@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5555'; 
+const API_BASE_URL = 'https://thefoodcourt-5.onrender.com'; 
 
 class ApiService {
   constructor() {
