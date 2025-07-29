@@ -20,3 +20,6 @@ TheFoodCourt is a full-stack web application for managing a digital food court e
 - View previous orders and reservations.
 
 ## Tech Stack
+- **Backend:** Python, Flask, SQLAlchemy, Flask-JWT-Extended, Flask-Migrate, Flask-CORS
+- **Frontend:** React, Bootstrap, Axios
+- **Database:** SQLite (default, can be swapped for PostgreSQL/MySQL)
