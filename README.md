@@ -149,3 +149,8 @@ TheFoodCourt/
 - `/meals` - List all meals
 - `/reservations` - Make/view reservations
 - `/orders` - Place/view orders
+
+## Development Notes
+- Use relative URLs in the frontend for API requests to leverage the proxy and avoid CORS issues.
+- JWT tokens are used for authentication; they are stored in localStorage after login.
+- Database migrations are managed with Flask-Migrate/Alembic.
