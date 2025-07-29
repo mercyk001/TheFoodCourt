@@ -93,3 +93,6 @@ TheFoodCourt/
 │   └── update_db_schema.py
 
 ```
+
+
+## Setup Instructions
