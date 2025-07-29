@@ -121,8 +121,8 @@ export default function Navbar({ cartCount = 0 }) {
             )}
             {user && user.userType === 'restaurant' && (
               <li className="nav-item">
-                <Link className="nav-link navlink-primary" to="/outlet-dashboard">Dashboard</Link>
-                <BarChart3 size={18} />
+                <Link className="nav-link navlink-primary" to="/outlet-dashboard"><BarChart3 size={18} /> Dashboard</Link>
+{/*                 <BarChart3 size={18} /> */}
               </li>
             )}
             <li className="nav-item ms-3">
