@@ -7,6 +7,7 @@ from models import db, Customer, Owner, Restaurant
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
+
 # Register Customer 
 @users_bp.route('/register/customer', methods=['POST'])
 def register_customer():
@@ -26,6 +27,7 @@ def register_customer():
     db.session.commit()
 
     return jsonify({"message": "Customer registered successfully"}), 201
+
 
 
 # Register Owner + Restaurant
